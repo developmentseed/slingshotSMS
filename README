@@ -1,8 +1,22 @@
-DOCUMENTATION = '''
-
 This is sms_rest, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple interface. It provides only 
 a few endpoints for this purpose:
+
+  REQUIREMENTS:
+
+  Python 2.5, 2.6... possibly 3
+  cherrypy, sqlite3, sqlobject
+  AT-compatible GSM modem
+
+  INSTALLATION:
+
+  * Install required libraries
+  * Drop into directory
+  * Edit sms_server.cfg
+  * run
+    python sms_server.py
+
+  METHODS:
 
   * /send
     
@@ -37,6 +51,16 @@ a few endpoints for this purpose:
     After subscribing, the endpoint will have POST data sent to it whenever messages
     are received
 
+  CONFIGURATION:
+    
+    mock=yes will run sms_server without trying to connect to a server, to test 
+    applications on the ability to POST and receive POST data
+
+    sms_poll is the wait time between asking the modem for new messages
+
+    database_file can specify what file the database will be on. Since this uses 
+    sqlObject, the database engine itself is flexible, but thread safety is a concern
+    because the poller runs on a separate thread from the web server
 
   TROUBLESHOOTING:
 

@@ -1,7 +1,6 @@
 import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib
 from sqlobject import *
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
-import simplejson
 from xml.dom import minidom
 
 '''
@@ -119,6 +118,7 @@ class SMSServer:
     # List API method
     # Try to use If-Modified-Since
     # def list(self):
+    # import simplejson
     #     messages = MessageData.select();
     #     data = {}
     #     # items = [x + ': ' + y for x,y in cherrypy.request.headers.get('If-Modified-Since')]
