@@ -1,0 +1,49 @@
+DOCUMENTATION = '''
+
+This is sms_rest, a minimal SMS server which connects GSM modems to 
+websites and applications via a simple interface. It provides only 
+a few endpoints for this purpose:
+
+  * /send
+    
+    Accepts POST data with keys "message" and "number" and immediately
+    dispatches messages to the modem
+
+    DEMO
+
+>>> params = urllib.urlencode({'message': 'Hello, world', 'number': 19737144557})
+>>> urllib.urlopen('http://127.0.0.1:8080/send', params).read()
+
+  * /status
+
+    Returns a multi-line status string
+
+  * /list (currently turned off)
+
+    Returns a list of received messages as JSON
+
+  * edit sms_rest.cfg to set endpoint POST data should be pointed at
+  
+  * /subscribe
+
+    Experimental subscription facility
+
+    DEMO
+
+>>> params = urllib.urlencode({'endpoint': 'http://127.0.0.1:8888', 'secret': 'crob'})
+>>> urllib.urlopen('http://127.0.0.1:8080/subscribe', params).read()
+'subscribed'
+    
+    After subscribing, the endpoint will have POST data sent to it whenever messages
+    are received
+
+
+  TROUBLESHOOTING:
+
+  * running this server from the command line with `python sms_rest.py`
+    Will give a log of modem messages.
+    CMS ERROR: 515 indicates that the modem has not connected yet
+
+  * Set the serial port of the modem in sms_rest.cfg. It will be autodetected
+    in the future, but we want to maintain compatibility across modems, so it
+    currently is not.
