@@ -5,7 +5,7 @@ a few endpoints for this purpose:
   REQUIREMENTS:
 
   Python 2.5, 2.6... possibly 3
-  cherrypy, sqlite3, sqlobject
+  cherrypy, sqlite3, sqlobject, pyserial
   AT-compatible GSM modem
 
   INSTALLATION:
