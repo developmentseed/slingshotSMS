@@ -70,9 +70,11 @@ class MessageData(SQLObject):
     text = StringCol()
 
 class SMSServer:
-    # The port varies, but I don't know a way to automatically determine it yet.
-    # it is too much to ask the user to 'ls /dev/tty*'
     def __init__(self):
+        '''
+          Initialize GsmModem (calling the constructor calls .boot() on
+          the object), start message_watcher thread and initialize variables
+        '''
         self.parse_config()
         if self.mock_modem == False:
             self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
@@ -82,24 +84,11 @@ class SMSServer:
         self.message_watcher.start()
         self.messages_in_queue = []
         self.subscriptions = []
-
-    def index(self):
-        return "<html><body><h1>SMS REST</h1><pre>"+DOCUMENTATION+"</pre></body></html>"
-    index.exposed = True
-
-    def reset(self):
-        MessageData.dropTable(True)
-        MessageData.createTable()
-        return "Reset complete"
-    reset.exposed = True
-
-    def status(self):
-        status = []
-        if self.mock_modem:
-            status.append('Mocking modem. No messages will be sent')
-        return "OK\n"+"\n".join(status)
-    status.exposed = True
-
+        
+    '''
+      Private method parse_config
+      no params
+    '''
     def parse_config(self):
         defaults = { 'port': '/dev/tty.MTCBA-U-G1a20', 'baudrate': '115200', \
             'sms_poll' : 2, 'database_file' : 'sms_rest.db', \
@@ -114,6 +103,61 @@ class SMSServer:
         self.mock_modem = self.config.getboolean('modem', 'mock')
         self.secret = self.config.get('subscribe', 'secret')
         self.max_subscriptions = self.config.getint('subscribe', 'max_subscriptions')
+
+    def post_results(self):
+        '''
+          Return None
+          private method which POSTS messages stored in the database
+          to endpoints defined by self.endpoint
+        '''
+        messages = MessageData.select();
+        for message in messages:
+            params = urllib.urlencode({
+                'sent' :     message.sent,
+                'timestamp' : message.received,
+                'text' :     message.text,
+                'sender' :   message.sender})
+            print "Received ", params
+            print self.endpoint
+            message.destroySelf()
+            response = urllib.urlopen(self.endpoint, params).read()
+            print response
+            for endpoint in self.subscriptions:
+                print "Posting to %s " % endpoint
+                try:
+                    response = urllib.urlopen(endpoint, params).read()
+                except Exception, e:
+                    print e
+
+
+    def index(self):
+        '''
+          Return a semi-well-formed HTML file with REST documentation
+          Public method
+        '''
+        return "<html><body><h1>SMS REST</h1><pre>"+DOCUMENTATION+"</pre></body></html>"
+    index.exposed = True
+
+    def reset(self):
+        MessageData.dropTable(True)
+        MessageData.createTable()
+        return "Reset complete"
+    reset.exposed = True
+
+
+    def status(self):
+        '''
+          Exposed method /status
+          returns plain-text string of
+          OK
+          [Status message]
+        '''
+        status = []
+        if self.mock_modem:
+            status.append('Mocking modem. No messages will be sent')
+        return "OK\n"+"\n".join(status)
+    status.exposed = True
+
 
     # List API method
     # Try to use If-Modified-Since
@@ -147,7 +191,14 @@ class SMSServer:
     #     return xml.toxml('UTF-8')
     # list.exposed = True
 
+
     def subscribe(self, endpoint=None, secret=None):
+        '''
+          Return a status message
+          Given POST variables endpoint and secret
+          Subscribes a site to POST updates from sms_rest.py. The given endpoint
+          will be included in future calls.
+        '''
         if secret == self.secret:
             if (len(self.subscriptions) + 1) > self.max_subscriptions:
                 return "no subscriptions left"
@@ -157,28 +208,16 @@ class SMSServer:
             return "provided secret was incorrect"
     subscribe.exposed = True
 
-    def post_results(self):
-        messages = MessageData.select();
-        for message in messages:
-            params = urllib.urlencode({
-                'sent' :     message.sent,
-                'timestamp' : message.received,
-                'text' :     message.text,
-                'sender' :   message.sender})
-            print "Received ", params
-            print self.endpoint
-            message.destroySelf()
-            response = urllib.urlopen(self.endpoint, params).read()
-            print response
-            for endpoint in self.subscriptions:
-                print "Posting to %s " % endpoint
-                try:
-                    response = urllib.urlopen(endpoint, params).read()
-                except Exception, e:
-                    print e
+
+
 
 
     def send(self, number=None, message=None):
+        '''
+          Return status code "ok"
+          Public API method which sends an SMS message when given a number
+          and message as POST variables
+        '''
         if number and message:
             print "Sending %s a message consisting of %s" % (number, message)
             if self.mock_modem:
