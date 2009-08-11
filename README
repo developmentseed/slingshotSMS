@@ -1,4 +1,4 @@
-This is sms_rest, a minimal SMS server which connects GSM modems to 
+This is agileSMS, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple interface. It provides only 
 a few endpoints for this purpose:
 
@@ -7,6 +7,12 @@ a few endpoints for this purpose:
   Python 2.5, 2.6... possibly 3
   cherrypy, sqlite3, sqlobject, pyserial
   AT-compatible GSM modem
+
+  This project uses pygsm
+  http://github.com/rapidsms/pygsm/tree/master
+
+  compatibility at:
+  http://wiki.github.com/adammck/pygsm
 
   INSTALLATION:
 
