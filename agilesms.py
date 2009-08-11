@@ -83,8 +83,8 @@ class SMSServer:
                 self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
             except Exception, e:
                 self.recommend_port()
-                if sys.platform == "win32":
-                    input("Press any key to continue")
+                raw_input("Press any key to continue")
+                sys.exit()
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
             self.retrieve_sms, self.sms_poll)
         self.message_watcher.subscribe()
@@ -92,9 +92,9 @@ class SMSServer:
         self.messages_in_queue = []
         self.subscriptions = []
 
-    def darwin_mtcba(self, port):
-        darwin_mtcba = re.compile('tty.MTCBA')
-        if darwin_mtcba.match(port):
+    def nix_mtcba(self, port):
+        nix_mtcba_re = re.compile('tty.MTCBA')
+        if nix_mtcba_re.match(port):
             return True
 
     def recommend_port(self):
@@ -104,8 +104,12 @@ installed the drivers that came with the modem, please do so, and then edit
 agilesms.cfg with the modem's port and baudrate.
 Ports will be recommended below if found:\n'''
         if sys.platform == 'darwin':
-            for p in filter(self.darwin_mtcba, os.listdir('/dev')):
+            for p in filter(self.nix_mtcba, os.listdir('/dev')):
                 print "MultiModem: /dev/%s" % p
+        elif sys.platform == 'win32':
+            import scanwin, serial
+            for order, port, desc, hwid in sorted(comports()):
+                print "%-10s: %s (%s) ->" % (port, desc, hwid)
 
         
     '''
