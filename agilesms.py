@@ -83,7 +83,8 @@ class SMSServer:
                 self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
             except Exception, e:
                 self.recommend_port()
-                exit()
+                if sys.platform == "win32":
+                    input("Press any key to continue")
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
             self.retrieve_sms, self.sms_poll)
         self.message_watcher.subscribe()
