@@ -1,4 +1,4 @@
-import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os
+import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 from xml.dom import minidom
@@ -82,14 +82,30 @@ class SMSServer:
             try:
                 self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
             except Exception, e:
-                self.status = "ERROR: Modem not found"
-                self.mock_modem = True
+                self.recommend_port()
+                exit()
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
             self.retrieve_sms, self.sms_poll)
         self.message_watcher.subscribe()
         self.message_watcher.start()
         self.messages_in_queue = []
         self.subscriptions = []
+
+    def darwin_mtcba(self, port):
+        darwin_mtcba = re.compile('tty.MTCBA')
+        if darwin_mtcba.match(port):
+            return True
+
+    def recommend_port(self):
+        print '''
+A port could not be opened to connect to your modem. If you have not 
+installed the drivers that came with the modem, please do so, and then edit 
+agilesms.cfg with the modem's port and baudrate.
+Ports will be recommended below if found:\n'''
+        if sys.platform == 'darwin':
+            for p in filter(self.darwin_mtcba, os.listdir('/dev')):
+                print "MultiModem: /dev/%s" % p
+
         
     '''
       Private method parse_config
