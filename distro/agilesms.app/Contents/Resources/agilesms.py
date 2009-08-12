@@ -1,4 +1,4 @@
-import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os
+import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 from xml.dom import minidom
@@ -82,14 +82,35 @@ class SMSServer:
             try:
                 self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
             except Exception, e:
-                self.status = "ERROR: Modem not found"
-                self.mock_modem = True
+                self.recommend_port()
+                raw_input("Press any key to continue")
+                sys.exit()
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
             self.retrieve_sms, self.sms_poll)
         self.message_watcher.subscribe()
         self.message_watcher.start()
         self.messages_in_queue = []
         self.subscriptions = []
+
+    def nix_mtcba(self, port):
+        nix_mtcba_re = re.compile('tty.MTCBA')
+        if nix_mtcba_re.match(port):
+            return True
+
+    def recommend_port(self):
+        print '''
+A port could not be opened to connect to your modem. If you have not 
+installed the drivers that came with the modem, please do so, and then edit 
+agilesms.cfg with the modem's port and baudrate.
+Ports will be recommended below if found:\n'''
+        if sys.platform == 'darwin':
+            for p in filter(self.nix_mtcba, os.listdir('/dev')):
+                print "MultiModem: /dev/%s" % p
+        elif sys.platform == 'win32':
+            import scanwin, serial
+            for order, port, desc, hwid in sorted(comports()):
+                print "%-10s: %s (%s) ->" % (port, desc, hwid)
+
         
     '''
       Private method parse_config
