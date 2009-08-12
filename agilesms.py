@@ -131,6 +131,7 @@ class SMSServer:
         self.subscriptions = []
 
     def nix_mtcba(self, port):
+        ''' Filter method '''
         nix_mtcba_re = re.compile('tty.MTCBA')
         if nix_mtcba_re.match(port):
             return True
@@ -148,13 +149,13 @@ Ports will be recommended below if found:\n'''
             import scanwin, serial
             for order, port, desc, hwid in sorted(scanwin.comports()):
                 print "%-10s: %s (%s) ->" % (port, desc, hwid)
-
         
-    '''
-      Private method parse_config
-      no params
-    '''
+
     def parse_config(self):
+        '''
+          Private method parse_config
+          no params
+        '''
         defaults = { 'port': '/dev/tty.MTCBA-U-G1a20', 'baudrate': '115200', \
             'sms_poll' : 2, 'database_file' : 'agilesms.db', \
             'endpoint' : 'http://localhost/sms', 'mock' : False, 'max_subscriptions' : 10 }
@@ -231,38 +232,6 @@ Ports will be recommended below if found:\n'''
     status.exposed = True
 
 
-    # List API method
-    # Try to use If-Modified-Since
-    # def list(self):
-    # import simplejson
-    #     messages = MessageData.select();
-    #     data = {}
-    #     # items = [x + ': ' + y for x,y in cherrypy.request.headers.get('If-Modified-Since')]
-    #     # return "<br />".join(items)
-    #     
-    #     data['messages'] = []
-    #     data['message_count'] = messages.count()
-    #     for message in messages:
-    #         m = { 'text': message.text, 'sender' : message.sender, \
-    #           'sent' : message.sent, 'received' : message.received}
-    #         data['messages'].append(m)
-    #     return simplejson.dumps(data)
-    #     # xml.appendChild(messages)
-    #     # for msg in self.messages_in_queue:
-    #     #     x = xml.createElement('message')
-    #     #     x.setAttribute('sent', str(msg.sent))
-    #     #     x.setAttribute('received', str(msg.received))
-    #     #     t = xml.createElement('text')
-    #     #     n = xml.createElement('number')
-    #     #     n.appendChild(xml.createTextNode(msg.sender))
-    #     #     t.appendChild(xml.createTextNode(msg.text))
-    #     #     messages.appendChild(x)
-    #     #     x.appendChild(t)
-    #     #     x.appendChild(n)
-    #     cherrypy.response.headers['Content-Type'] = 'text/xml'
-    #     return xml.toxml('UTF-8')
-    # list.exposed = True
-
 
     def subscribe(self, endpoint=None, secret=None):
         '''
@@ -308,6 +277,40 @@ Ports will be recommended below if found:\n'''
         except Exception, e:
             print "Exception caught: ", e
         self.post_results()
+
+    # List API method
+    # Try to use If-Modified-Since
+    # def list(self):
+    # import simplejson
+    #     messages = MessageData.select();
+    #     data = {}
+    #     # items = [x + ': ' + y for x,y in cherrypy.request.headers.get('If-Modified-Since')]
+    #     # return "<br />".join(items)
+    #     
+    #     data['messages'] = []
+    #     data['message_count'] = messages.count()
+    #     for message in messages:
+    #         m = { 'text': message.text, 'sender' : message.sender, \
+    #           'sent' : message.sent, 'received' : message.received}
+    #         data['messages'].append(m)
+    #     return simplejson.dumps(data)
+    #     # xml.appendChild(messages)
+    #     # for msg in self.messages_in_queue:
+    #     #     x = xml.createElement('message')
+    #     #     x.setAttribute('sent', str(msg.sent))
+    #     #     x.setAttribute('received', str(msg.received))
+    #     #     t = xml.createElement('text')
+    #     #     n = xml.createElement('number')
+    #     #     n.appendChild(xml.createTextNode(msg.sender))
+    #     #     t.appendChild(xml.createTextNode(msg.text))
+    #     #     messages.appendChild(x)
+    #     #     x.appendChild(t)
+    #     #     x.appendChild(n)
+    #     cherrypy.response.headers['Content-Type'] = 'text/xml'
+    #     return xml.toxml('UTF-8')
+    # list.exposed = True
+
+
 
 if __name__=="__main__":
     cherrypy.config.update("cherrypy.cfg")
