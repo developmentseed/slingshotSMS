@@ -95,4 +95,15 @@ a few endpoints for this purpose:
   * Set the serial port of the modem in sms_rest.cfg. It will be autodetected
     in the future, but we want to maintain compatibility across modems, so it
     currently is not.
+
+  ROADMAP
+
+  * Fully implement subscriptions: subscriptions should be persisted in the 
+    database so that they aren't forgotten on restart
+
+  * Detect more modems: currently you can just 'ls /dev' to find all the devices
+    on your system that might be modems, and agilesms detects MultiModems
+
+  * Implement /list, which should use If-Modified-Since to narrow down results.
+    This is very close to completion, collaboration would be welcome.
 </pre>
