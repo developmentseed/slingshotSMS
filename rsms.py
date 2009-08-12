@@ -4,16 +4,16 @@ from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 from xml.dom import minidom
 
 '''
-  agilesms
+  rSMS
   version 0.2
   Tom MacWright
   http://www.developmentseed.org/
 '''
 
-CONFIG = "agilesms.cfg"
+CONFIG = "rsms.cfg"
 
 class MessageData(SQLObject):
-    _connection = SQLiteConnection('agilesms.db')
+    _connection = SQLiteConnection('rsms.db')
     sent = IntCol()
     received = IntCol()
     sender = StringCol()
@@ -30,7 +30,7 @@ class SMSServer:
         except Exception, e:
             print e
             raw_input("Press any key to continue")
-        if not os.path.exists('agilesms.db'):
+        if not os.path.exists('rsms.db'):
             self.reset()
         if self.mock_modem == False:
             try:
@@ -56,8 +56,9 @@ class SMSServer:
         print '''
 A port could not be opened to connect to your modem. If you have not 
 installed the drivers that came with the modem, please do so, and then edit 
-agilesms.cfg with the modem's port and baudrate.
-Ports will be recommended below if found:\n'''
+rsms.cfg with the modem's port and baudrate.
+Edit the port number behind the line [%s]
+Ports will be recommended below if found:\n''' % self.modem_section
         if sys.platform == 'darwin':
             # only runs on mac
             for p in filter(self.nix_mtcba, os.listdir('/dev')):
@@ -74,22 +75,34 @@ Ports will be recommended below if found:\n'''
           no params
         '''
         defaults = { 'port': '/dev/tty.MTCBA-U-G1a20', 'baudrate': '115200', \
-            'sms_poll' : 2, 'database_file' : 'agilesms.db', \
+            'sms_poll' : 2, 'database_file' : 'rsms.db', \
             'endpoint' : 'http://localhost/sms', 'mock' : False, 'max_subscriptions' : 10 }
+
         self.config = ConfigParser.SafeConfigParser(defaults)
+
         # For mac distributions, look up the .app directory structure
-        # to find agilesms.cfg alongside the double-clickable
+        # to find rsms.cfg alongside the double-clickable
         if (sys.platform != "win32") and hasattr(sys, 'frozen'):
             config_path = '../../../'+CONFIG
         else:
             config_path = CONFIG
+
+        # Choose modem sections based on OS in order to have a singular
+        # config file
+        if sys.platform == 'win32':
+            self.modem_section = 'winmodem'
+        elif sys.platform == 'darwin':
+            self.modem_section = 'macmodem'
+        else:
+            self.modem_section = 'modem'
+
         self.config.read(config_path)
-        self.port = self.config.get('modem', 'port')
-        self.baudrate = self.config.getint('modem', 'baudrate')
-        self.sms_poll = self.config.getint('modem', 'sms_poll')
+        self.port =       self.config.get       (self.modem_section, 'port')
+        self.baudrate =   self.config.getint    (self.modem_section, 'baudrate')
+        self.sms_poll =   self.config.getint    (self.modem_section, 'sms_poll')
+        self.mock_modem = self.config.getboolean(self.modem_section, 'mock')
         self.database_file = self.config.get('server', 'database_file')
         self.endpoint = self.config.get('server', 'endpoint')
-        self.mock_modem = self.config.getboolean('modem', 'mock')
         self.secret = self.config.get('subscribe', 'secret')
         self.max_subscriptions = self.config.getint('subscribe', 'max_subscriptions')
 
@@ -164,7 +177,7 @@ Ports will be recommended below if found:\n'''
         '''
           Return a status message
           Given POST variables endpoint and secret
-          Subscribes a site to POST updates from sms_rest.py. The given endpoint
+          Subscribes a site to POST updates from rSMS The given endpoint
           will be included in future calls.
         '''
         if secret == self.secret:
@@ -242,7 +255,7 @@ Ports will be recommended below if found:\n'''
 if __name__=="__main__":
     if sys.platform == 'darwin' and hasattr(sys, 'frozen'):
         # only runs on .app
-        cherrypy.config.update("../../../cherrypy.cfg")
+        cherrypy.config.update("../../../server.cfg")
     else:
-        cherrypy.config.update("cherrypy.cfg")
+        cherrypy.config.update("server.cfg")
     cherrypy.quickstart(SMSServer())
