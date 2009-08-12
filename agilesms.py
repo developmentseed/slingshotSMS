@@ -107,7 +107,11 @@ class SMSServer:
           Initialize GsmModem (calling the constructor calls .boot() on
           the object), start message_watcher thread and initialize variables
         '''
-        self.parse_config()
+        try:
+            self.parse_config()
+        except Exception, e:
+            print e
+            raw_input("Press any key to continue")
         if not os.path.exists('agilesms.db'):
             self.reset()
         if self.mock_modem == False:
@@ -140,7 +144,7 @@ Ports will be recommended below if found:\n'''
                 print "MultiModem: /dev/%s" % p
         elif sys.platform == 'win32':
             import scanwin, serial
-            for order, port, desc, hwid in sorted(comports()):
+            for order, port, desc, hwid in sorted(scanwin.comports()):
                 print "%-10s: %s (%s) ->" % (port, desc, hwid)
 
         
