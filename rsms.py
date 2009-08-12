@@ -11,6 +11,7 @@ from xml.dom import minidom
 '''
 
 CONFIG = "rsms.cfg"
+SERVER_CONFIG = "server.cfg"
 
 class MessageData(SQLObject):
     _connection = SQLiteConnection('rsms.db')
@@ -58,6 +59,11 @@ A port could not be opened to connect to your modem. If you have not
 installed the drivers that came with the modem, please do so, and then edit 
 rsms.cfg with the modem's port and baudrate.
 Edit the port number behind the line [%s]
+
+For all modem options on Macintosh, run
+ls /dev
+in a Terminal session
+
 Ports will be recommended below if found:\n''' % self.modem_section
         if sys.platform == 'darwin':
             # only runs on mac
@@ -96,7 +102,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
         else:
             self.modem_section = 'modem'
 
-        self.config.read(config_path)
+        self.config.read([config_path, '../'+config_path])
         self.port =       self.config.get       (self.modem_section, 'port')
         self.baudrate =   self.config.getint    (self.modem_section, 'baudrate')
         self.sms_poll =   self.config.getint    (self.modem_section, 'sms_poll')
@@ -250,12 +256,16 @@ Ports will be recommended below if found:\n''' % self.modem_section
     #     return xml.toxml('UTF-8')
     # list.exposed = True
 
-
-
 if __name__=="__main__":
     if sys.platform == 'darwin' and hasattr(sys, 'frozen'):
         # only runs on .app
-        cherrypy.config.update("../../../server.cfg")
+        if os.path.exists("../../../"+SERVER_CONFIG):
+            cherrypy.config.update("../../../"+SERVER_CONFIG)
+        else:
+            cherrypy.config.update("../../../../"+SERVER_CONFIG)
     else:
-        cherrypy.config.update("server.cfg")
+        if os.path.exists(SERVER_CONFIG):
+            cherrypy.config.update(SERVER_CONFIG)
+        else:
+            cherrypy.config.update("../"+SERVER_CONFIG)
     cherrypy.quickstart(SMSServer())

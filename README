@@ -1,5 +1,5 @@
 <pre>
-This is agileSMS, a minimal SMS server which connects GSM modems to 
+This is rSMS, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple interface. It provides only 
 a few endpoints for this purpose:
 
@@ -19,13 +19,13 @@ a few endpoints for this purpose:
 
   * Install required libraries
   * Drop into directory
-  * Edit agilesms.cfg
+  * Edit rsms.cfg
   * run
-    python agilesms.py
+    python rsms.py
 
     The main requirement for this tool to work is to get the right serial port
-    set in agilesms.cfg. If you have no idea what this is, but you have a modem installed 
-    and connected, you can try running agilesms and it can recommend possible ports.
+    set in rsms.py If you have no idea what this is, but you have a modem installed 
+    and connected, you can try running rSMS and it can recommend possible ports.
 
   METHODS:
 
@@ -102,7 +102,7 @@ a few endpoints for this purpose:
     database so that they aren't forgotten on restart
 
   * Detect more modems: currently you can just 'ls /dev' to find all the devices
-    on your system that might be modems, and agilesms detects MultiModems
+    on your system that might be modems, and rSMS detects MultiModems
 
   * Implement /list, which should use If-Modified-Since to narrow down results.
     This is very close to completion, collaboration would be welcome.
