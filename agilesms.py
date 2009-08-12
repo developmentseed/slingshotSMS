@@ -188,9 +188,13 @@ Ports will be recommended below if found:\n'''
                 'sender' :   message.sender})
             print "Received ", params
             print self.endpoint
-            message.destroySelf()
-            response = urllib.urlopen(self.endpoint, params).read()
-            print response
+            try:
+                response = urllib.urlopen(self.endpoint, params).read()
+                # only called when urlopen succeeds here
+                message.destroySelf()
+                print response
+            except Exception, e:
+                print e
             for endpoint in self.subscriptions:
                 print "Posting to %s " % endpoint
                 try:
