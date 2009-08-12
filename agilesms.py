@@ -59,6 +59,7 @@ installed the drivers that came with the modem, please do so, and then edit
 agilesms.cfg with the modem's port and baudrate.
 Ports will be recommended below if found:\n'''
         if sys.platform == 'darwin':
+            # only runs on mac
             for p in filter(self.nix_mtcba, os.listdir('/dev')):
                 print "MultiModem: /dev/%s" % p
         elif sys.platform == 'win32':
@@ -239,5 +240,9 @@ Ports will be recommended below if found:\n'''
 
 
 if __name__=="__main__":
-    cherrypy.config.update("cherrypy.cfg")
+    if sys.platform == 'darwin' and hasattr(sys, 'frozen'):
+        # only runs on .app
+        cherrypy.config.update("../../../cherrypy.cfg")
+    else:
+        cherrypy.config.update("cherrypy.cfg")
     cherrypy.quickstart(SMSServer())
