@@ -1,3 +1,4 @@
+<pre>
 This is agileSMS, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple interface. It provides only 
 a few endpoints for this purpose:
@@ -18,9 +19,13 @@ a few endpoints for this purpose:
 
   * Install required libraries
   * Drop into directory
-  * Edit sms_server.cfg
+  * Edit agilesms.cfg
   * run
-    python sms_server.py
+    python agilesms.py
+
+    The main requirement for this tool to work is to get the right serial port
+    set in agilesms.cfg. If you have no idea what this is, but you have a modem installed 
+    and connected, you can try running agilesms and it can recommend possible ports.
 
   METHODS:
 
@@ -33,8 +38,14 @@ a few endpoints for this purpose:
 
 >>> params = urllib.urlencode({'message': 'Hello, world', 'number': 19737144557})
 >>> urllib.urlopen('http://127.0.0.1:8080/send', params).read()
-
-  * /status
+</pre>
+<form action="/send" method="POST">
+<input type="text" name="number" value="1973... cell number" />
+<input type="text" name="message" value="Message" />
+<input type="submit" value="Send" />
+</form>
+<pre>
+  * <a href="/status">/status</a>
 
     Returns a multi-line status string
 
@@ -77,3 +88,4 @@ a few endpoints for this purpose:
   * Set the serial port of the modem in sms_rest.cfg. It will be autodetected
     in the future, but we want to maintain compatibility across modems, so it
     currently is not.
+</pre>

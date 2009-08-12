@@ -10,90 +10,6 @@ from xml.dom import minidom
   http://www.developmentseed.org/
 '''
 
-
-DOCUMENTATION = '''
-
-This is agileSMS, a minimal SMS server which connects GSM modems to 
-websites and applications via a simple interface. It provides only 
-a few endpoints for this purpose:
-
-  REQUIREMENTS:
-
-  Python 2.5, 2.6... possibly 3
-  cherrypy, sqlite3, sqlobject, pyserial
-  AT-compatible GSM modem
-
-  This project uses pygsm
-  http://github.com/rapidsms/pygsm/tree/master
-
-  compatibility at:
-  http://wiki.github.com/adammck/pygsm
-
-  INSTALLATION:
-
-  * Install required libraries
-  * Drop into directory
-  * Edit agilesms.cfg
-  * run
-    python agilesms.py
-
-  METHODS:
-
-  * /send
-    
-    Accepts POST data with keys "message" and "number" and immediately
-    dispatches messages to the modem
-
-    DEMO
-
->>> params = urllib.urlencode({'message': 'Hello, world', 'number': 19737144557})
->>> urllib.urlopen('http://127.0.0.1:8080/send', params).read()
-
-  * /status
-
-    Returns a multi-line status string
-
-  * /list (currently turned off)
-
-    Returns a list of received messages as JSON
-
-  * edit agilesms.cfg to set endpoint POST data should be pointed at
-  
-  * /subscribe
-
-    Experimental subscription facility
-
-    DEMO
-
->>> params = urllib.urlencode({'endpoint': 'http://127.0.0.1:8888', 'secret': 'crob'})
->>> urllib.urlopen('http://127.0.0.1:8080/subscribe', params).read()
-'subscribed'
-    
-    After subscribing, the endpoint will have POST data sent to it whenever messages
-    are received
-
-  CONFIGURATION:
-    
-    mock=yes will run sms_server without trying to connect to a server, to test 
-    applications on the ability to POST and receive POST data
-
-    sms_poll is the wait time between asking the modem for new messages
-
-    database_file can specify what file the database will be on. Since this uses 
-    sqlObject, the database engine itself is flexible, but thread safety is a concern
-    because the poller runs on a separate thread from the web server
-
-  TROUBLESHOOTING:
-
-  * running this server from the command line with `python sms_rest.py`
-    Will give a log of modem messages.
-    CMS ERROR: 515 indicates that the modem has not connected yet
-
-  * Set the serial port of the modem in agilesms.cfg. It will be autodetected
-    in the future, but we want to maintain compatibility across modems, so it
-    currently is not.
-'''
-
 CONFIG = "agilesms.cfg"
 
 class MessageData(SQLObject):
@@ -207,7 +123,11 @@ Ports will be recommended below if found:\n'''
           Return a semi-well-formed HTML file with REST documentation
           Public method
         '''
-        return "<html><body><h1>SMS REST</h1><pre>"+DOCUMENTATION+"</pre></body></html>"
+        try:
+            documentation = open('README').read()
+            return "<html><body><h1>SMS REST</h1>"+documentation+"</body></html>"
+        except Exception, e:
+            return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
     index.exposed = True
 
     def reset(self):
