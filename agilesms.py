@@ -33,9 +33,9 @@ a few endpoints for this purpose:
 
   * Install required libraries
   * Drop into directory
-  * Edit sms_server.cfg
+  * Edit agilesms.cfg
   * run
-    python sms_server.py
+    python agilesms.py
 
   METHODS:
 
@@ -57,7 +57,7 @@ a few endpoints for this purpose:
 
     Returns a list of received messages as JSON
 
-  * edit sms_rest.cfg to set endpoint POST data should be pointed at
+  * edit agilesms.cfg to set endpoint POST data should be pointed at
   
   * /subscribe
 
@@ -89,10 +89,12 @@ a few endpoints for this purpose:
     Will give a log of modem messages.
     CMS ERROR: 515 indicates that the modem has not connected yet
 
-  * Set the serial port of the modem in sms_rest.cfg. It will be autodetected
+  * Set the serial port of the modem in agilesms.cfg. It will be autodetected
     in the future, but we want to maintain compatibility across modems, so it
     currently is not.
 '''
+
+CONFIG = "agilesms.cfg"
 
 class MessageData(SQLObject):
     _connection = SQLiteConnection('agilesms.db')
@@ -160,9 +162,9 @@ Ports will be recommended below if found:\n'''
         # For mac distributions, look up the .app directory structure
         # to find agilesms.cfg alongside the double-clickable
         if (sys.platform != "win32") and hasattr(sys, 'frozen'):
-            config_path = '../../../agilesms.cfg'
+            config_path = '../../../'+CONFIG
         else:
-            config_path = 'agilesms.cfg'
+            config_path = CONFIG
         self.config.read(config_path)
         self.port = self.config.get('modem', 'port')
         self.baudrate = self.config.getint('modem', 'baudrate')
@@ -308,4 +310,5 @@ Ports will be recommended below if found:\n'''
         self.post_results()
 
 if __name__=="__main__":
+    cherrypy.config.update("cherrypy.cfg")
     cherrypy.quickstart(SMSServer())
