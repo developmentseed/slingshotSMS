@@ -64,6 +64,13 @@ a few endpoints for this purpose:
 >>> params = urllib.urlencode({'endpoint': 'http://127.0.0.1:8888', 'secret': 'crob'})
 >>> urllib.urlopen('http://127.0.0.1:8080/subscribe', params).read()
 'subscribed'
+</pre>
+<form action="/subscribe" method="POST">
+<input type="text" name="endpoint" value="http://127.0.0.1:8888/" />
+<input type="text" name="secret" value="crob" />
+<input type="submit" value="Subscribe" />
+</form>
+<pre>
     
     After subscribing, the endpoint will have POST data sent to it whenever messages
     are received

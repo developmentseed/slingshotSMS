@@ -148,6 +148,8 @@ Ports will be recommended below if found:\n'''
         # TODO: Add signal strength number provided by pygsm
         if self.mock_modem:
             status.append('Mocking modem. No messages will be sent')
+        for s in self.subscriptions:
+            status.append('endpoint: %s' %  s)
         return "OK\n"+"\n".join(status)
     status.exposed = True
 
