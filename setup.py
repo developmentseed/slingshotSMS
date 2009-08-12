@@ -1,4 +1,4 @@
 from distutils.core import setup
 import py2exe
 
-setup(console=['agilesms.py'], data_files=['README', 'agilesms.cfg', 'server.cfg'])
+setup(console=['rsms.py'], data_files=['README', 'rsms.cfg', 'server.cfg'])
