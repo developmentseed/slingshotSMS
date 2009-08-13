@@ -1,5 +1,5 @@
 <pre>
-This is rSMS, a minimal SMS server which connects GSM modems to 
+This is slingshotsms, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple interface. It provides only 
 a few endpoints for this purpose:
 
@@ -19,13 +19,13 @@ a few endpoints for this purpose:
 
   * Install required libraries
   * Drop into directory
-  * Edit rsms.cfg
+  * Edit slingshotsms.cfg
   * run
-    python rsms.py
+    python slingshotsms.py
 
     The main requirement for this tool to work is to get the right serial port
-    set in rsms.py If you have no idea what this is, but you have a modem installed 
-    and connected, you can try running rSMS and it can recommend possible ports.
+    set in slingshotsms.py If you have no idea what this is, but you have a modem installed 
+    and connected, you can try running slingshotsms and it can recommend possible ports.
 
   METHODS:
 
@@ -102,7 +102,7 @@ a few endpoints for this purpose:
     database so that they aren't forgotten on restart
 
   * Detect more modems: currently you can just 'ls /dev' to find all the devices
-    on your system that might be modems, and rSMS detects MultiModems
+    on your system that might be modems, and slingshotsms detects MultiModems
 
   * Implement /list, which should use If-Modified-Since to narrow down results.
     This is very close to completion, collaboration would be welcome.

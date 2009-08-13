@@ -134,4 +134,4 @@ def _run(*scripts):
         execfile(path, globals(), globals())
 
 
-_run('rsms.py')
+_run('slingshotsms.py')

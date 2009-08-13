@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleDisplayName</key>
-	<string>rsms</string>
+	<string>slingshotsms</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -20,15 +20,15 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>rsms</string>
+	<string>slingshotsms</string>
 	<key>CFBundleIconFile</key>
 	<string>PythonApplet.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.pythonmac.unspecified.rsms</string>
+	<string>org.pythonmac.unspecified.slingshotsms</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>rsms</string>
+	<string>slingshotsms</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

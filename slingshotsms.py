@@ -4,24 +4,24 @@ from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 from xml.dom import minidom
 
 '''
-  rSMS
+  slingshotsms
   version 0.2
   Tom MacWright
   http://www.developmentseed.org/
 '''
 
-CONFIG = "rsms.cfg"
+CONFIG = "slingshotsms.cfg"
 SERVER_CONFIG = "server.cfg"
 
 class MessageData(SQLObject):
-    _connection = SQLiteConnection('rsms.db')
+    _connection = SQLiteConnection('slingshotsms.db')
     sent = IntCol()
     received = IntCol()
     sender = StringCol()
     text = StringCol()
 
 class OutMessageData(SQLObject):
-    _connection = SQLiteConnection('rsms.db')
+    _connection = SQLiteConnection('slingshotsms.db')
     number = StringCol()
     text = StringCol()
 
@@ -36,7 +36,7 @@ class SMSServer:
         except Exception, e:
             print e
             raw_input("Press any key to continue")
-        if not os.path.exists('rsms.db'):
+        if not os.path.exists('slingshotsms.db'):
             self.reset()
         if self.mock_modem == False:
             try:
@@ -62,7 +62,7 @@ class SMSServer:
         print '''
 A port could not be opened to connect to your modem. If you have not 
 installed the drivers that came with the modem, please do so, and then edit 
-rsms.cfg with the modem's port and baudrate.
+slingshotsms.cfg with the modem's port and baudrate.
 Edit the port number behind the line [%s]
 
 For all modem options on Macintosh, run
@@ -86,13 +86,13 @@ Ports will be recommended below if found:\n''' % self.modem_section
           no params
         '''
         defaults = { 'port': '/dev/tty.MTCBA-U-G1a20', 'baudrate': '115200', \
-            'sms_poll' : 2, 'database_file' : 'rsms.db', \
+            'sms_poll' : 2, 'database_file' : 'slingshotsms.db', \
             'endpoint' : 'http://localhost/sms', 'mock' : False, 'max_subscriptions' : 10 }
 
         self.config = ConfigParser.SafeConfigParser(defaults)
 
         # For mac distributions, look up the .app directory structure
-        # to find rsms.cfg alongside the double-clickable
+        # to find slingshotsms.cfg alongside the double-clickable
         if (sys.platform != "win32") and hasattr(sys, 'frozen'):
             config_path = '../../../'+CONFIG
         else:
@@ -194,7 +194,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
         '''
           Return a status message
           Given POST variables endpoint and secret
-          Subscribes a site to POST updates from rSMS The given endpoint
+          Subscribes a site to POST updates from slingshotsms The given endpoint
           will be included in future calls.
         '''
         if secret == self.secret:
