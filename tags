@@ -1,0 +1,92 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BOOL	scanwin.py	/^BOOL = ctypes.c_int$/;"	v
+CHAR	scanwin.py	/^CHAR = ctypes.c_char$/;"	v
+CONFIG	rsms.py	/^CONFIG = "rsms.cfg"$/;"	v
+ConfigParser	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+DIGCF_DEVICEINTERFACE	scanwin.py	/^DIGCF_DEVICEINTERFACE = 16$/;"	v
+DIGCF_PRESENT	scanwin.py	/^DIGCF_PRESENT = 2$/;"	v
+DWORD	scanwin.py	/^DWORD = ctypes.c_ulong$/;"	v
+ERROR_INSUFFICIENT_BUFFER	scanwin.py	/^ERROR_INSUFFICIENT_BUFFER = 122$/;"	v
+ERROR_NO_MORE_ITEMS	scanwin.py	/^ERROR_NO_MORE_ITEMS = 259$/;"	v
+GUID	scanwin.py	/^class GUID(ctypes.Structure):$/;"	c
+GUID_CLASS_COMPORT	scanwin.py	/^GUID_CLASS_COMPORT = GUID(0x86e0d1e0L, 0x8089, 0x11d0,$/;"	v
+HDEVINFO	scanwin.py	/^HDEVINFO = ctypes.c_int$/;"	v
+HWND	scanwin.py	/^HWND = ctypes.c_uint$/;"	v
+INVALID_HANDLE_VALUE	scanwin.py	/^INVALID_HANDLE_VALUE = 0$/;"	v
+IntCol	rsms.py	/^from sqlobject import SQLObject, IntCol, StringCol$/;"	i
+MessageData	rsms.py	/^class MessageData(SQLObject):$/;"	c
+NULL	scanwin.py	/^NULL = 0$/;"	v
+PBYTE	scanwin.py	/^PBYTE = ctypes.c_void_p$/;"	v
+PCTSTR	scanwin.py	/^PCTSTR = ctypes.c_char_p$/;"	v
+PDWORD	scanwin.py	/^PDWORD = ctypes.POINTER(DWORD)$/;"	v
+PSP_DEVICE_INTERFACE_DATA	scanwin.py	/^PSP_DEVICE_INTERFACE_DATA = ctypes.POINTER(SP_DEVICE_INTERFACE_DATA)$/;"	v
+PSP_DEVICE_INTERFACE_DETAIL_DATA	scanwin.py	/^PSP_DEVICE_INTERFACE_DETAIL_DATA = ctypes.c_void_p$/;"	v
+PSP_DEVINFO_DATA	scanwin.py	/^PSP_DEVINFO_DATA = ctypes.POINTER(SP_DEVINFO_DATA)$/;"	v
+SERVER_CONFIG	rsms.py	/^SERVER_CONFIG = "server.cfg"$/;"	v
+SIZEOF_SP_DEVICE_INTERFACE_DETAIL_DATA_A	scanwin.py	/^SIZEOF_SP_DEVICE_INTERFACE_DETAIL_DATA_A = ctypes.sizeof(dummy)$/;"	v
+SMSServer	rsms.py	/^class SMSServer:$/;"	c
+SPDRP_FRIENDLYNAME	scanwin.py	/^SPDRP_FRIENDLYNAME = 12$/;"	v
+SPDRP_HARDWAREID	scanwin.py	/^SPDRP_HARDWAREID = 1$/;"	v
+SPDRP_LOCATION_INFORMATION	scanwin.py	/^SPDRP_LOCATION_INFORMATION = 13$/;"	v
+SP_DEVICE_INTERFACE_DATA	scanwin.py	/^class SP_DEVICE_INTERFACE_DATA(ctypes.Structure):$/;"	c
+SP_DEVICE_INTERFACE_DETAIL_DATA_A	scanwin.py	/^        class SP_DEVICE_INTERFACE_DETAIL_DATA_A(ctypes.Structure):$/;"	c	function:comports
+SP_DEVINFO_DATA	scanwin.py	/^class SP_DEVINFO_DATA(ctypes.Structure):$/;"	c
+SQLObject	rsms.py	/^from sqlobject import SQLObject, IntCol, StringCol$/;"	i
+SQLiteConnection	rsms.py	/^from sqlobject.sqlite.sqliteconnection import SQLiteConnection$/;"	i
+SetupDiDestroyDeviceInfoList	scanwin.py	/^SetupDiDestroyDeviceInfoList = ctypes.windll.setupapi.SetupDiDestroyDeviceInfoList$/;"	v
+SetupDiEnumDeviceInterfaces	scanwin.py	/^SetupDiEnumDeviceInterfaces = ctypes.windll.setupapi.SetupDiEnumDeviceInterfaces$/;"	v
+SetupDiGetClassDevs	scanwin.py	/^SetupDiGetClassDevs = ctypes.windll.setupapi.SetupDiGetClassDevsA$/;"	v
+SetupDiGetDeviceInterfaceDetail	scanwin.py	/^SetupDiGetDeviceInterfaceDetail = ctypes.windll.setupapi.SetupDiGetDeviceInterfaceDetailA$/;"	v
+SetupDiGetDeviceRegistryProperty	scanwin.py	/^SetupDiGetDeviceRegistryProperty = ctypes.windll.setupapi.SetupDiGetDeviceRegistryPropertyA$/;"	v
+StringCol	rsms.py	/^from sqlobject import SQLObject, IntCol, StringCol$/;"	i
+ULONG	scanwin.py	/^ULONG = ctypes.c_ulong$/;"	v
+ULONG_PTR	scanwin.py	/^ULONG_PTR = ctypes.POINTER(ULONG)$/;"	v
+ValidHandle	scanwin.py	/^def ValidHandle(value):$/;"	f
+__init__	rsms.py	/^    def __init__(self, config=None):$/;"	m	class:SMSServer
+__str__	scanwin.py	/^            def __str__(self):$/;"	m	class:comports.SP_DEVICE_INTERFACE_DETAIL_DATA_A	file:
+__str__	scanwin.py	/^    def __str__(self):$/;"	m	class:GUID	file:
+__str__	scanwin.py	/^    def __str__(self):$/;"	m	class:SP_DEVICE_INTERFACE_DATA	file:
+__str__	scanwin.py	/^    def __str__(self):$/;"	m	class:SP_DEVINFO_DATA	file:
+_connection	rsms.py	/^    _connection = SQLiteConnection('rsms.db')$/;"	v	class:MessageData
+_fields_	scanwin.py	/^            _fields_ = [$/;"	v	class:comports.SP_DEVICE_INTERFACE_DETAIL_DATA_A
+_fields_	scanwin.py	/^    _fields_ = [$/;"	v	class:GUID
+_fields_	scanwin.py	/^    _fields_ = [$/;"	v	class:SP_DEVICE_INTERFACE_DATA
+_fields_	scanwin.py	/^    _fields_ = [$/;"	v	class:SP_DEVINFO_DATA
+_fields_	scanwin.py	/^    _fields_=[("d1", DWORD), ("d2", CHAR)]$/;"	v	class:dummy
+_pack_	scanwin.py	/^    _pack_ = 1$/;"	v	class:dummy
+cherrypy	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+comports	scanwin.py	/^def comports(available_only=True):$/;"	f
+ctypes	scanwin.py	/^import ctypes$/;"	i
+dummy	scanwin.py	/^class dummy(ctypes.Structure):$/;"	c
+index	rsms.py	/^    def index(self):$/;"	f
+minidom	rsms.py	/^from xml.dom import minidom$/;"	i
+nix_mtcba	rsms.py	/^    def nix_mtcba(self, port):$/;"	m	class:SMSServer
+os	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+parse_config	rsms.py	/^    def parse_config(self):$/;"	f
+post_results	rsms.py	/^    def post_results(self):$/;"	f
+py2exe	setup.py	/^import py2exe$/;"	i
+pygsm	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+re	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+re	scanwin.py	/^import re$/;"	i
+received	rsms.py	/^    received = IntCol()$/;"	v	class:MessageData
+recommend_port	rsms.py	/^    def recommend_port(self):$/;"	m	class:SMSServer
+reset	rsms.py	/^    def reset(self):$/;"	f
+retrieve_sms	rsms.py	/^    def retrieve_sms(self):$/;"	f
+scanwin	rsms.py	/^            import scanwin, serial$/;"	i
+send	rsms.py	/^    def send(self, number=None, message=None):$/;"	f
+sender	rsms.py	/^    sender = StringCol()$/;"	v	class:MessageData
+sent	rsms.py	/^    sent = IntCol()$/;"	v	class:MessageData
+serial	rsms.py	/^            import scanwin, serial$/;"	i
+setup	setup.py	/^from distutils.core import setup$/;"	i
+sqlite3	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+status	rsms.py	/^    def status(self):$/;"	f
+subscribe	rsms.py	/^    def subscribe(self, endpoint=None, secret=None):$/;"	f
+sys	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+text	rsms.py	/^    text = StringCol()$/;"	v	class:MessageData
+time	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i
+urllib	rsms.py	/^import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re$/;"	i

@@ -10,8 +10,8 @@ from xml.dom import minidom
   http://www.developmentseed.org/
 '''
 
-CONFIG = "slingshotsms.cfg"
-SERVER_CONFIG = "server.cfg"
+CONFIG = "slingshotsms.txt"
+SERVER_CONFIG = "server.txt"
 
 class MessageData(SQLObject):
     _connection = SQLiteConnection('slingshotsms.db')
@@ -62,7 +62,7 @@ class SMSServer:
         print '''
 A port could not be opened to connect to your modem. If you have not 
 installed the drivers that came with the modem, please do so, and then edit 
-slingshotsms.cfg with the modem's port and baudrate.
+slingshotsms.txt with the modem's port and baudrate.
 Edit the port number behind the line [%s]
 
 For all modem options on Macintosh, run
@@ -92,7 +92,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
         self.config = ConfigParser.SafeConfigParser(defaults)
 
         # For mac distributions, look up the .app directory structure
-        # to find slingshotsms.cfg alongside the double-clickable
+        # to find slingshotsms.txt alongside the double-clickable
         if (sys.platform != "win32") and hasattr(sys, 'frozen'):
             config_path = '../../../'+CONFIG
         else:
