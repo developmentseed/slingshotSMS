@@ -9,7 +9,7 @@ a few endpoints for this purpose:
   cherrypy, sqlite3 (included in Python)bb, sqlobject, pyserial
   AT-compatible GSM modem
 
-  This project uses pygsm
+  This project uses pygsm, sponsored by UNICEF
   http://github.com/rapidsms/pygsm/tree/master
 
   compatibility at:
