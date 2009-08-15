@@ -1,4 +1,5 @@
-import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re
+import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re, simplejson
+from rfc822 import parsedate as parsehttpdate
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 from xml.dom import minidom
@@ -235,37 +236,18 @@ Ports will be recommended below if found:\n''' % self.modem_section
             print "Exception caught: ", e
         self.post_results()
 
-    # List API method
-    # Try to use If-Modified-Since
-    # def list(self):
-    # import simplejson
-    #     messages = MessageData.select();
-    #     data = {}
-    #     # items = [x + ': ' + y for x,y in cherrypy.request.headers.get('If-Modified-Since')]
-    #     # return "<br />".join(items)
-    #     
-    #     data['messages'] = []
-    #     data['message_count'] = messages.count()
-    #     for message in messages:
-    #         m = { 'text': message.text, 'sender' : message.sender, \
-    #           'sent' : message.sent, 'received' : message.received}
-    #         data['messages'].append(m)
-    #     return simplejson.dumps(data)
-    #     # xml.appendChild(messages)
-    #     # for msg in self.messages_in_queue:
-    #     #     x = xml.createElement('message')
-    #     #     x.setAttribute('sent', str(msg.sent))
-    #     #     x.setAttribute('received', str(msg.received))
-    #     #     t = xml.createElement('text')
-    #     #     n = xml.createElement('number')
-    #     #     n.appendChild(xml.createTextNode(msg.sender))
-    #     #     t.appendChild(xml.createTextNode(msg.text))
-    #     #     messages.appendChild(x)
-    #     #     x.appendChild(t)
-    #     #     x.appendChild(n)
-    #     cherrypy.response.headers['Content-Type'] = 'text/xml'
-    #     return xml.toxml('UTF-8')
-    # list.exposed = True
+    def list(self):
+        date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
+        data = {}
+        messages = MessageData.select().filter(MessageData.q.received>date);
+        data['messages'] = []
+        data['message_count'] = messages.count()
+        for message in messages:
+            m = { 'text': message.text, 'sender' : message.sender, \
+              'sent' : message.sent, 'received' : message.received}
+            data['messages'].append(m)
+        return simplejson.dumps(data)
+    list.exposed = True
 
 if __name__=="__main__":
     if sys.platform == 'darwin' and hasattr(sys, 'frozen'):
