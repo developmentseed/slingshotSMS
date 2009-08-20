@@ -6,14 +6,15 @@ a few endpoints for this purpose:
   REQUIREMENTS:
 
   Python 2.5, 2.6... possibly 3
-  cherrypy, sqlite3 (included in Python)bb, sqlobject, pyserial
+  cherrypy, sqlite3 (included in Python), sqlobject, pyserial
   AT-compatible GSM modem
 
   This project uses pygsm, sponsored by UNICEF
   http://github.com/rapidsms/pygsm/tree/master
 
   compatibility at:
-  http://wiki.github.com/adammck/pygsm
+  * http://wiki.github.com/adammck/pygsm
+  * http://code.google.com/p/smslib/wiki/Compatibility
 
   INSTALLATION:
 
