@@ -16,8 +16,9 @@ SERVER_CONFIG = "server.txt"
 
 class MessageData(SQLObject):
     _connection = SQLiteConnection('slingshotsms.db')
-    sent = IntCol()
-    received = IntCol()
+    # in sqlite, these columns will be default null
+    sent = IntCol(default=None)
+    received = IntCol(default=None)
     sender = StringCol()
     text = StringCol()
 
@@ -230,8 +231,16 @@ Ports will be recommended below if found:\n''' % self.modem_section
             msg = self.modem.next_message()
             if msg is not None:
                 print "Message retrieved"
-                MessageData(sent=int(time.mktime(msg.sent.timetuple())), sender=msg.sender, \
-                    received=int(time.mktime(msg.received.timetuple())), text=msg.text)
+                data = {}
+                # some modems do not provide these attributes
+                if has_attr(msg, 'sent'):
+                    data['sent'] = int(msg.sent.timetuple())
+                if has_attr(msg, 'received'):
+                    data['received'] = int(msg.received.timetuple())
+                # we can count on these attributes from all modems
+                data['sender'] = msg.sender
+                data['text'] = msg.text
+                MessageData(**data)
         except Exception, e:
             print "Exception caught: ", e
         self.post_results()
