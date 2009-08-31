@@ -30,6 +30,23 @@ INSTALLATION
   set in slingshotsms.py If you have no idea what this is, but you have a modem installed 
   and connected, you can try running slingshotsms and it can recommend possible ports.
 
+BUILDING
+========
+
+Building on Windows
+-------------------
+
+Run
+
+C:\Python25\python.exe setup.py py2exe
+
+Building on Mac
+---------------
+
+Run
+
+py2applet slingshotsms.py
+
 METHODS
 =======
 
