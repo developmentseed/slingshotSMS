@@ -3,39 +3,43 @@ This is slingshotsms, a minimal SMS server which connects GSM modems to
 websites and applications via a simple interface. It provides only 
 a few endpoints for this purpose:
 
-  REQUIREMENTS:
+REQUIREMENTS
+============
 
-  Python 2.5, 2.6... possibly 3
-  cherrypy, sqlite3 (included in Python), sqlobject, pyserial
-  AT-compatible GSM modem
+Python 2.5, 2.6... possibly 3
+cherrypy, sqlite3 (included in Python), sqlobject, pyserial
+AT-compatible GSM modem
 
-  This project uses pygsm, sponsored by UNICEF
-  http://github.com/rapidsms/pygsm/tree/master
+This project uses pygsm, sponsored by UNICEF
+http://github.com/rapidsms/pygsm/tree/master
 
-  compatibility at:
-  * http://wiki.github.com/adammck/pygsm
-  * http://code.google.com/p/smslib/wiki/Compatibility
+compatibility at:
+* http://wiki.github.com/adammck/pygsm
+* http://code.google.com/p/smslib/wiki/Compatibility
 
-  INSTALLATION:
+INSTALLATION
+============
 
-  * Install required libraries
-  * Drop into directory
-  * Edit slingshotsms.txt
-  * run
-    python slingshotsms.py
+* Install required libraries
+* Drop into directory
+* Edit slingshotsms.txt
+* run
+  python slingshotsms.py
 
-    The main requirement for this tool to work is to get the right serial port
-    set in slingshotsms.py If you have no idea what this is, but you have a modem installed 
-    and connected, you can try running slingshotsms and it can recommend possible ports.
+  The main requirement for this tool to work is to get the right serial port
+  set in slingshotsms.py If you have no idea what this is, but you have a modem installed 
+  and connected, you can try running slingshotsms and it can recommend possible ports.
 
-  METHODS:
+METHODS
+=======
 
-  * /send
-    
-    Accepts POST data with keys "message" and "number" and immediately
-    dispatches messages to the modem
+* /send
+  
+  Accepts POST data with keys "message" and "number" and immediately
+  dispatches messages to the modem
 
-    DEMO
+DEMO
+----
 
 Python::
 
@@ -66,21 +70,13 @@ PHP::
 <input type="submit" value="Send" />
 </form>
 <pre>
-  * <a href="/status">/status</a>
 
-    Returns a multi-line status string
+* <a href="/status">/status</a> (Returns a multi-line status string)
+* /list (returns a list of received messages as JSON)
+* /subscribe   (Experimental subscription facility)
 
-  * /list (currently turned off)
-
-    Returns a list of received messages as JSON
-
-  * edit slingshotsms.txt to set endpoint POST data should be pointed at
-  
-  * /subscribe
-
-    Experimental subscription facility
-
-    DEMO
+DEMO
+----
 
 >>> params = urllib.urlencode({'endpoint': 'http://127.0.0.1:8888', 'secret': 'crob'})
 >>> urllib.urlopen('http://127.0.0.1:8080/subscribe', params).read()
@@ -96,35 +92,38 @@ PHP::
     After subscribing, the endpoint will have POST data sent to it whenever messages
     are received
 
-  CONFIGURATION:
+CONFIGURATION
+=============
     
-    mock=yes will run sms_server without trying to connect to a server, to test 
-    applications on the ability to POST and receive POST data
+mock=yes will run sms_server without trying to connect to a server, to test 
+applications on the ability to POST and receive POST data
 
-    sms_poll is the wait time between asking the modem for new messages
+sms_poll is the wait time between asking the modem for new messages
 
-    database_file can specify what file the database will be on. Since this uses 
-    sqlObject, the database engine itself is flexible, but thread safety is a concern
-    because the poller runs on a separate thread from the web server
+database_file can specify what file the database will be on. Since this uses 
+sqlObject, the database engine itself is flexible, but thread safety is a concern
+because the poller runs on a separate thread from the web server
 
-  TROUBLESHOOTING:
+TROUBLESHOOTING
+===============
 
-  * running this server from the command line with `python slingshotsms.py`
-    Will give a log of modem messages.
-    CMS ERROR: 515 indicates that the modem has not connected yet
+* running this server from the command line with `python slingshotsms.py`
+  Will give a log of modem messages.
+  CMS ERROR: 515 indicates that the modem has not connected yet
 
-  * Set the serial port of the modem in slingshotsms.txt It will be autodetected
-    in the future, but we want to maintain compatibility across modems, so it
-    currently is not.
+* Set the serial port of the modem in slingshotsms.txt It will be autodetected
+  in the future, but we want to maintain compatibility across modems, so it
+  currently is not.
 
-  ROADMAP
+ROADMAP
+=======
 
-  * Fully implement subscriptions: subscriptions should be persisted in the 
-    database so that they aren't forgotten on restart
+* Fully implement subscriptions: subscriptions should be persisted in the 
+  database so that they aren't forgotten on restart
 
-  * Detect more modems: currently you can just 'ls /dev' to find all the devices
-    on your system that might be modems, and slingshotsms detects MultiModems
+* Detect more modems: currently you can just 'ls /dev' to find all the devices
+  on your system that might be modems, and slingshotsms detects MultiModems
 
-  * Implement /list, which should use If-Modified-Since to narrow down results.
-    This is very close to completion, collaboration would be welcome.
+* Implement /list, which should use If-Modified-Since to narrow down results.
+  This is very close to completion, collaboration would be welcome.
 </pre>
