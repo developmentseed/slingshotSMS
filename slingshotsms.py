@@ -119,6 +119,18 @@ Ports will be recommended below if found:\n''' % self.modem_section
         self.secret = self.config.get('subscribe', 'secret')
         self.max_subscriptions = self.config.getint('subscribe', 'max_subscriptions')
 
+    def get_real_values(self, message):
+        fields = {}
+        if message.sent is not None:
+            fields['sent'] = message.sent
+        if message.received is not None:
+            fields['received'] = message.received
+        fields['text'] = message.text
+        fields['sender'] = message.sender
+        return fields
+
+        
+
     def post_results(self):
         '''
           Return None
@@ -127,11 +139,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
         '''
         messages = MessageData.select();
         for message in messages:
-            params = urllib.urlencode({
-                'sent' :     message.sent,
-                'timestamp' : message.received,
-                'text' :     message.text,
-                'sender' :   message.sender})
+            params = urllib.urlencode(self.get_real_values(message))
             print "Received ", params
             print self.endpoint
             try:
@@ -233,10 +241,11 @@ Ports will be recommended below if found:\n''' % self.modem_section
                 print "Message retrieved"
                 data = {}
                 # some modems do not provide these attributes
-                if has_attr(msg, 'sent'):
+                try:
                     data['sent'] = int(msg.sent.timetuple())
-                if has_attr(msg, 'received'):
-                    data['received'] = int(msg.received.timetuple())
+                except Exception, e:
+                    print e
+                    pass
                 # we can count on these attributes from all modems
                 data['sender'] = msg.sender
                 data['text'] = msg.text
