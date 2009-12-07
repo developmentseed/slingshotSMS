@@ -167,7 +167,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
           Public method
         '''
         try:
-            documentation = open('README').read()
+            documentation = open('README.rst').read()
             return "<html><body><h1>SlingshotSMS</h1>"+documentation+"</body></html>"
         except Exception, e:
             return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
