@@ -6,7 +6,7 @@ from xml.dom import minidom
 
 '''
   slingshotsms
-  version 0.2
+  version 0.3
   Tom MacWright
   http://www.developmentseed.org/
 '''
@@ -242,7 +242,8 @@ Ports will be recommended below if found:\n''' % self.modem_section
                 data = {}
                 # some modems do not provide these attributes
                 try:
-                    data['sent'] = int(msg.sent.timetuple())
+                    # print int(time.mktime(msg.sent.timetuple()))
+                    data['sent'] = int(time.mktime(time.localtime(int(msg.sent.strftime('%s')))))
                 except Exception, e:
                     print e
                     pass
