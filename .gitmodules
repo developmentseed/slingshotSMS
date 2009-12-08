@@ -1,0 +1,3 @@
+[submodule "pygsm"]
+	path = pygsm
+	url = git@github.com:tmcw/slingshotsms.git
