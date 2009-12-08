@@ -19,6 +19,7 @@ def probe(verbose=False):
 
     try:
         for port in portscanner.scan():
+            if verbose: print "Attempting to connect to port %s" % port
             try:
                 for baudrate in baudrates:
                     if verbose:

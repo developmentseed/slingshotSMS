@@ -1,12 +1,16 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+
 import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re, simplejson
+from pygsm.autogsmmodem import GsmModemNotFound
 from rfc822 import parsedate as parsehttpdate
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 from xml.dom import minidom
 
 '''
-  slingshotsms
-  version 0.3
+  SlingshotSMS
+  version 1.5
   Tom MacWright
   http://www.developmentseed.org/
 '''
@@ -44,9 +48,11 @@ class SMSServer:
             try:
                 self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
             except Exception, e:
-                self.recommend_port()
-                raw_input("Press any key to continue")
-                sys.exit()
+                try:
+                    self.modem = pygsm.AutoGsmModem()
+                except GsmModemNotFound, e:
+                    raw_input("No modems were autodetected - you will need to edit slingshotsms.txt to point Slingshot at your working GSM modem.")
+                    sys.exit()
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
             self.retrieve_sms, self.sms_poll)
         self.message_watcher.subscribe()
@@ -54,13 +60,8 @@ class SMSServer:
         self.messages_in_queue = []
         self.subscriptions = []
 
-    def nix_mtcba(self, port):
-        ''' Filter method '''
-        nix_mtcba_re = re.compile('tty.MTCBA')
-        if nix_mtcba_re.match(port):
-            return True
-
     def recommend_port(self):
+      
         print '''
 A port could not be opened to connect to your modem. If you have not 
 installed the drivers that came with the modem, please do so, and then edit 
@@ -80,7 +81,6 @@ Ports will be recommended below if found:\n''' % self.modem_section
             import scanwin, serial
             for order, port, desc, hwid in sorted(scanwin.comports()):
                 print "%-10s: %s (%s) ->" % (port, desc, hwid)
-        
 
     def parse_config(self):
         '''
@@ -129,8 +129,6 @@ Ports will be recommended below if found:\n''' % self.modem_section
         fields['sender'] = message.sender
         return fields
 
-        
-
     def post_results(self):
         '''
           Return None
@@ -160,15 +158,16 @@ Ports will be recommended below if found:\n''' % self.modem_section
             self.modem.send_sms(out_message.number, out_message.text)
             out_message.destroySelf()
 
-
     def index(self):
         '''
           Return a semi-well-formed HTML file with REST documentation
           Public method
         '''
         try:
+            status_line = "port: %s\nbaudrate: %s" % (self.modem.device_kwargs['port'],
+                self.modem.device_kwargs['baudrate'])
             documentation = open('README.rst').read()
-            return "<html><body><h1>SlingshotSMS</h1>"+documentation+"</body></html>"
+            return "<html><body>"+status_line+"<h1>SlingshotSMS</h1>"+documentation+"</body></html>"
         except Exception, e:
             return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
     index.exposed = True
@@ -180,7 +179,6 @@ Ports will be recommended below if found:\n''' % self.modem_section
         OutMessageData.createTable()
         return "Reset complete"
     reset.exposed = True
-
 
     def status(self):
         '''
@@ -197,8 +195,6 @@ Ports will be recommended below if found:\n''' % self.modem_section
             status.append('endpoint: %s' %  s)
         return "OK\n"+"\n".join(status)
     status.exposed = True
-
-
 
     def subscribe(self, endpoint=None, secret=None):
         '''

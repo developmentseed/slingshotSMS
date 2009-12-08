@@ -3,6 +3,7 @@
 
 
 from gsmmodem import GsmModem
+from autogsmmodem import AutoGsmModem
 __doc__ = GsmModem.__doc__
 
 def get_version():
