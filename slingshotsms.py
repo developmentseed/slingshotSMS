@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-import cherrypy, pygsm, sqlite3, ConfigParser, time, urllib, sys, os, re, simplejson
-from pygsm.autogsmmodem import GsmModemNotFound
+import ConfigParser, time, urllib, sys, os, re
+from xml.dom import minidom
 from rfc822 import parsedate as parsehttpdate
+
+import cherrypy, pygsm, sqlite3
+from pygsm.autogsmmodem import GsmModemNotFound
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
-from xml.dom import minidom
 
 '''
   SlingshotSMS
@@ -51,36 +53,14 @@ class SMSServer:
                 try:
                     self.modem = pygsm.AutoGsmModem()
                 except GsmModemNotFound, e:
-                    raw_input("No modems were autodetected - you will need to edit slingshotsms.txt to point Slingshot at your working GSM modem.")
+                    raw_input("No modems were autodetected - you will need to edit \
+                            slingshotsms.txt to point Slingshot at your working GSM modem.")
                     sys.exit()
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
             self.retrieve_sms, self.sms_poll)
         self.message_watcher.subscribe()
         self.message_watcher.start()
         self.messages_in_queue = []
-        self.subscriptions = []
-
-    def recommend_port(self):
-      
-        print '''
-A port could not be opened to connect to your modem. If you have not 
-installed the drivers that came with the modem, please do so, and then edit 
-slingshotsms.txt with the modem's port and baudrate.
-Edit the port number behind the line [%s]
-
-For all modem options on Macintosh, run
-ls /dev
-in a Terminal session
-
-Ports will be recommended below if found:\n''' % self.modem_section
-        if sys.platform == 'darwin':
-            # only runs on mac
-            for p in filter(self.nix_mtcba, os.listdir('/dev')):
-                print "MultiModem: /dev/%s" % p
-        elif sys.platform == 'win32':
-            import scanwin, serial
-            for order, port, desc, hwid in sorted(scanwin.comports()):
-                print "%-10s: %s (%s) ->" % (port, desc, hwid)
 
     def parse_config(self):
         '''
@@ -89,7 +69,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
         '''
         defaults = { 'port': '/dev/tty.MTCBA-U-G1a20', 'baudrate': '115200', \
             'sms_poll' : 2, 'database_file' : 'slingshotsms.db', \
-            'endpoint' : 'http://localhost/sms', 'mock' : False, 'max_subscriptions' : 10 }
+            'endpoint' : 'http://localhost/sms', 'mock' : False }
 
         self.config = ConfigParser.SafeConfigParser(defaults)
 
@@ -116,8 +96,6 @@ Ports will be recommended below if found:\n''' % self.modem_section
         self.mock_modem = self.config.getboolean(self.modem_section, 'mock')
         self.database_file = self.config.get('server', 'database_file')
         self.endpoint = self.config.get('server', 'endpoint')
-        self.secret = self.config.get('subscribe', 'secret')
-        self.max_subscriptions = self.config.getint('subscribe', 'max_subscriptions')
 
     def get_real_values(self, message):
         fields = {}
@@ -130,46 +108,34 @@ Ports will be recommended below if found:\n''' % self.modem_section
         return fields
 
     def post_results(self):
-        '''
-          Return None
-          private method which POSTS messages stored in the database
-          to endpoints defined by self.endpoint
-        '''
+        '''private method which POSTS messages stored in the database to endpoints defined by self.endpoint'''
         messages = MessageData.select();
         for message in messages:
             params = urllib.urlencode(self.get_real_values(message))
             print "Received ", params
             print self.endpoint
+            if not self.endpoint:
+                # If the main endpoint isn't set, don't
+                # try posting to anything
+                return
             try:
-                response = urllib.urlopen(self.endpoint, params).read()
+                response = urllib.urlopen(self.endpoint, params)
                 # only called when urlopen succeeds here
                 message.destroySelf()
-                print response
+                print response.read()
             except Exception, e:
                 print e
-            for endpoint in self.subscriptions:
-                print "Posting to %s " % endpoint
-                try:
-                    response = urllib.urlopen(endpoint, params).read()
-                except Exception, e:
-                    print e
+        # Send messages
         out_messages = OutMessageData.select();
         for out_message in out_messages:
             self.modem.send_sms(out_message.number, out_message.text)
             out_message.destroySelf()
 
     def index(self):
+        '''exposed method: spash page for SlingshotSMS information & status'''
         from docutils.core import publish_parts
-        '''
-          Return a semi-well-formed HTML file with REST documentation
-          Public method
-        '''
+        
         try:
-            try:
-                status_line = "port: %s\nbaudrate: %s" % (self.modem.device_kwargs['port'],
-                    self.modem.device_kwargs['baudrate'])
-            except Exception: # mock mode will raise a attribute error on self.modem
-                status_line = ''
             # Compile the ReST file into an HTML fragment
             documentation = publish_parts(source=open('README.rst').read(), writer_name='html')
             return """
@@ -178,10 +144,10 @@ Ports will be recommended below if found:\n''' % self.modem_section
                     <title>SlingshotSMS</title>
                     <link rel="stylesheet" type="text/css" href="web/style.css" />
                 </head>
-                <body>%s
+                <body>
                 <div class="doc">%s</div>
                 </body>
-            </html>""" % (status_line, documentation['fragment'])
+            </html>""" % (documentation['fragment'])
         except Exception, e:
             print e
             return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
@@ -196,36 +162,21 @@ Ports will be recommended below if found:\n''' % self.modem_section
     reset.exposed = True
 
     def status(self):
-        '''
-          Exposed method /status
-          returns plain-text string of
-          OK
-          [Status message]
-        '''
-        status = []
-        # TODO: Add signal strength number provided by pygsm
-        if self.mock_modem:
-            status.append('Mocking modem. No messages will be sent')
-        for s in self.subscriptions:
-            status.append('endpoint: %s' %  s)
-        return "OK\n"+"\n".join(status)
-    status.exposed = True
+        """ exposed method: returns JSON object of status information """
+        import simplejson
+        status = {}
 
-    def subscribe(self, endpoint=None, secret=None):
-        '''
-          Return a status message
-          Given POST variables endpoint and secret
-          Subscribes a site to POST updates from slingshotsms The given endpoint
-          will be included in future calls.
-        '''
-        if secret == self.secret:
-            if (len(self.subscriptions) + 1) > self.max_subscriptions:
-                return "no subscriptions left"
-            self.subscriptions.append(endpoint)
-            return "subscribed"
+        if self.mock_modem:
+            status['port'] = 'mocking'
         else:
-            return "provided secret was incorrect"
-    subscribe.exposed = True
+            status['port'] = self.modem.device_kwargs['port']
+            status['baudrate'] = self.modem.device_kwargs['baudrate']
+
+        status['endpoint'] = self.endpoint
+
+        return simplejson.dumps(status)
+
+    status.exposed = True
 
     def send(self, number=None, message=None):
         '''
@@ -267,6 +218,7 @@ Ports will be recommended below if found:\n''' % self.modem_section
         self.post_results()
 
     def list(self):
+        import simplejson
         date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
         data = {}
         messages = MessageData.select().filter(MessageData.q.received>date);

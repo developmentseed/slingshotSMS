@@ -3,14 +3,13 @@
 This is SlingshotSMS, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple HTTP interface.
 
-REQUIREMENTS
+Requirements
 ============
 
-Python 2.5, 2.6... possibly 3
-cherrypy, sqlite3 (included in Python), sqlobject, pyserial
-AT-compatible GSM modem
-
-This project uses `pygsm <http://github.com/rapidsms/pygsm/tree/master/>`_, sponsored by `UNICEF <http://www.unicef.org/>`_.
+* Python 2.5 or newer
+* cherrypy, sqlobject, pyserial, simplejson
+* AT-compatible GSM modem
+* This project uses `pygsm <http://github.com/rapidsms/pygsm/tree/master/>`_, sponsored by `UNICEF <http://www.unicef.org/>`_. A version of pygsm is included.
 
 Modem Compatibility
 -------------------
@@ -18,7 +17,7 @@ Modem Compatibility
 * `pygsm's wiki <http://wiki.github.com/adammck/pygsm>`_
 * http://code.google.com/p/smslib/wiki/Compatibility
 
-MANUAL INSTALLATION
+Manual Installation
 ===================
 
 * Install required libraries
@@ -30,7 +29,7 @@ MANUAL INSTALLATION
   set in slingshotsms.py If you have no idea what this is, but you have a modem installed 
   and connected, you can try running slingshotsms and it can recommend possible ports.
 
-BUILDING
+Building
 ========
 
 Building on Windows
@@ -47,8 +46,8 @@ In Terminal.app::
 
   py2applet slingshotsms.py
 
-METHODS
-=======
+HTTP Methods
+============
 
 * /send
   
@@ -56,7 +55,6 @@ METHODS
   dispatches messages to the modem
 * `/status </status>`_ (Returns a multi-line status string)
 * `/list </list>`_ (returns a list of received messages as JSON)
-* /subscribe
 
 Sending a Message
 -----------------
@@ -91,26 +89,7 @@ PHP::
    <input type="submit" value="Send" />
    </form>
 
-
-Subscribing (beta)
-------------------
-
->>> params = urllib.urlencode({'endpoint': 'http://127.0.0.1:8888', 'secret': 'crob'})
->>> urllib.urlopen('http://127.0.0.1:8080/subscribe', params).read()
-'subscribed'
-
-.. raw:: html
-
-   <form action="/subscribe" method="POST">
-   <input type="text" name="endpoint" value="http://127.0.0.1:8888/" />
-   <input type="text" name="secret" value="crob" />
-   <input type="submit" value="Subscribe" />
-   </form>
-    
-After subscribing, the endpoint will have POST data sent to it whenever messages
-are received
-
-CONFIGURATION
+Configuration
 =============
     
 * ``mock=yes``
@@ -125,14 +104,14 @@ CONFIGURATION
   sqlObject, the database engine itself is flexible, but thread safety is a concern
   because the poller runs on a separate thread from the web server
 
-TROUBLESHOOTING
+Troubleshooting
 ===============
 
 * running this server from the command line with ``python slingshotsms.py``
   Will give a log of modem messages.
   CMS ERROR: 515 indicates that the modem has not connected yet
 
-ROADMAP
+Roadmap
 =======
 
 * Fully implement subscriptions: subscriptions should be persisted in the 
