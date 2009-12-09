@@ -1,4 +1,1 @@
 
-[submodule "pygsm"]
-	path = pygsm
-	url = git@github.com:tmcw/pygsm.git

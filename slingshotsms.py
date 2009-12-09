@@ -109,27 +109,27 @@ class SMSServer:
 
     def post_results(self):
         '''private method which POSTS messages stored in the database to endpoints defined by self.endpoint'''
-        messages = MessageData.select();
-        for message in messages:
-            params = urllib.urlencode(self.get_real_values(message))
-            print "Received ", params
-            print self.endpoint
-            if not self.endpoint:
-                # If the main endpoint isn't set, don't
-                # try posting to anything
-                return
-            try:
-                response = urllib.urlopen(self.endpoint, params)
-                # only called when urlopen succeeds here
-                message.destroySelf()
-                print response.read()
-            except Exception, e:
-                print e
+
         # Send messages
         out_messages = OutMessageData.select();
         for out_message in out_messages:
             self.modem.send_sms(out_message.number, out_message.text)
             out_message.destroySelf()
+
+        # Post retrieved messages if endpoint is set
+        if self.endpoint:
+            messages = MessageData.select();
+            for message in messages:
+                params = urllib.urlencode(self.get_real_values(message))
+                print "Received ", params
+                print self.endpoint
+                try:
+                    response = urllib.urlopen(self.endpoint, params)
+                    # only called when urlopen succeeds here
+                    message.destroySelf()
+                    print response.read()
+                except Exception, e:
+                    print e
 
     def index(self):
         '''exposed method: spash page for SlingshotSMS information & status'''
@@ -218,17 +218,23 @@ class SMSServer:
         self.post_results()
 
     def list(self):
-        import simplejson
+        import PyRSS2Gen, datetime
+        from socket import gethostname, gethostbyname
         date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
-        data = {}
-        messages = MessageData.select().filter(MessageData.q.received>date);
-        data['messages'] = []
-        data['message_count'] = messages.count()
-        for message in messages:
-            m = { 'text': message.text, 'sender' : message.sender, \
-              'sent' : message.sent, 'received' : message.received}
-            data['messages'].append(m)
-        return simplejson.dumps(data)
+        if date:
+            messages = MessageData.select().filter(MessageData.q.received>date);
+        else:
+            messages = MessageData.select().limit(100)
+        rss = PyRSS2Gen.RSS2(
+                title = "SlingshotSMS on %s" % gethostname(),
+                link = gethostbyname(gethostname()),
+                description = "Incoming SMS messages",
+                lastBuildDate = datetime.datetime.now(),
+                items = [PyRSS2Gen.RSSItem(
+                    description = message.text,
+                    author = message.sender,
+                    pubDate = datetime.datetime.fromtimestamp(message.sent)) for message in messages])
+        return rss.to_xml()
     list.exposed = True
 
 if __name__=="__main__":
