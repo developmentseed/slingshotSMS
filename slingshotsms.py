@@ -63,10 +63,8 @@ class SMSServer:
         self.messages_in_queue = []
 
     def parse_config(self):
-        '''
-          Private method parse_config
-          no params
-        '''
+        """no params: this assists in parsing the config file with defaults"""
+        import ConfigParser
         defaults = { 'port': '/dev/tty.MTCBA-U-G1a20', 'baudrate': '115200', \
             'sms_poll' : 2, 'database_file' : 'slingshotsms.db', \
             'endpoint' : 'http://localhost/sms', 'mock' : False }
@@ -98,6 +96,8 @@ class SMSServer:
         self.endpoint = self.config.get('server', 'endpoint')
 
     def get_real_values(self, message):
+        """ attempts to get values out of an input message which could have a different
+        form, depending on modem choice"""
         fields = {}
         if message.sent is not None:
             fields['sent'] = message.sent
@@ -150,10 +150,11 @@ class SMSServer:
             </html>""" % (documentation['fragment'])
         except Exception, e:
             print e
-            return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
+            return "<html><body><h1>SlingshotSMS</h1>README File not found</body></html>"
     index.exposed = True
 
     def reset(self):
+        """ Drop and recreate all tables according to schema. """
         MessageData.dropTable(True)
         MessageData.createTable()
         OutMessageData.dropTable(True)
@@ -163,7 +164,6 @@ class SMSServer:
 
     def status(self):
         """ exposed method: returns JSON object of status information """
-        import simplejson
         status = {}
 
         if self.mock_modem:
@@ -174,7 +174,7 @@ class SMSServer:
 
         status['endpoint'] = self.endpoint
 
-        return simplejson.dumps(status)
+        return repr(status)
 
     status.exposed = True
 
@@ -218,6 +218,7 @@ class SMSServer:
         self.post_results()
 
     def list(self):
+        """ exposed method that generates a list of messages in RSS 2.0 """
         import PyRSS2Gen, datetime
         from socket import gethostname, gethostbyname
         date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
@@ -238,8 +239,9 @@ class SMSServer:
     list.exposed = True
 
 if __name__=="__main__":
+    """ run as command line """
+    # hasattr(sys, 'frozen') confirms that this is running as a py2app-compiled Application
     if sys.platform == 'darwin' and hasattr(sys, 'frozen'):
-        # only runs on .app
         if os.path.exists("../../../"+SERVER_CONFIG):
             cherrypy.config.update("../../../"+SERVER_CONFIG)
         else:
