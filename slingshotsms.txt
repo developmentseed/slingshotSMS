@@ -25,4 +25,7 @@ port=
 
 [server]
 # Default site that will be posted to
+# Send endpoint to blank if you want the posting process
+# to be completely avoided and want to simply pull
+# from the /list RSS 2.0 feed
 endpoint=
