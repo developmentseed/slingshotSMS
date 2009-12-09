@@ -159,16 +159,22 @@ Ports will be recommended below if found:\n''' % self.modem_section
             out_message.destroySelf()
 
     def index(self):
+        from docutils.core import publish_parts
         '''
           Return a semi-well-formed HTML file with REST documentation
           Public method
         '''
         try:
-            status_line = "port: %s\nbaudrate: %s" % (self.modem.device_kwargs['port'],
-                self.modem.device_kwargs['baudrate'])
-            documentation = open('README.rst').read()
-            return "<html><body>"+status_line+"<h1>SlingshotSMS</h1>"+documentation+"</body></html>"
+            try:
+                status_line = "port: %s\nbaudrate: %s" % (self.modem.device_kwargs['port'],
+                    self.modem.device_kwargs['baudrate'])
+            except Exception: # mock mode will raise a attribute error on self.modem
+                status_line = ''
+            # Compile the ReST file into an HTML fragment
+            documentation = publish_parts(source=open('README.rst').read(), writer_name='html')
+            return "<html><body>"+status_line+"<h1>SlingshotSMS</h1>"+documentation['fragment']+"</body></html>"
         except Exception, e:
+            print e
             return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
     index.exposed = True
 
