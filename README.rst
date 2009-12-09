@@ -7,7 +7,7 @@ Requirements
 ============
 
 * Python 2.5 or newer
-* cherrypy, sqlobject, pyserial, simplejson
+* cherrypy, sqlobject, pySerial, PyRSS2Gen
 * AT-compatible GSM modem
 * This project uses `pygsm <http://github.com/rapidsms/pygsm/tree/master/>`_, sponsored by `UNICEF <http://www.unicef.org/>`_. A version of pygsm is included.
 
