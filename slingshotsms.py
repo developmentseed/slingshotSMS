@@ -172,7 +172,16 @@ Ports will be recommended below if found:\n''' % self.modem_section
                 status_line = ''
             # Compile the ReST file into an HTML fragment
             documentation = publish_parts(source=open('README.rst').read(), writer_name='html')
-            return "<html><body>"+status_line+"<h1>SlingshotSMS</h1>"+documentation['fragment']+"</body></html>"
+            return """
+            <html>
+                <head>
+                    <title>SlingshotSMS</title>
+                    <link rel="stylesheet" type="text/css" href="web/style.css" />
+                </head>
+                <body>%s
+                <div class="doc">%s</div>
+                </body>
+            </html>""" % (status_line, documentation['fragment'])
         except Exception, e:
             print e
             return "<html><body><h1>SMS REST</h1>README File not found</body></html>"
@@ -282,4 +291,7 @@ if __name__=="__main__":
             cherrypy.config.update(SERVER_CONFIG)
         else:
             cherrypy.config.update("../"+SERVER_CONFIG)
-    cherrypy.quickstart(SMSServer())
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    conf = {'/web': {'tools.staticdir.on': True,
+        'tools.staticdir.dir': os.path.join(current_dir, 'web')}}
+    cherrypy.quickstart(SMSServer(), '/', config=conf)

@@ -1,6 +1,7 @@
-This is slingshotsms, a minimal SMS server which connects GSM modems to 
-websites and applications via a simple interface. It provides only 
-a few endpoints for this purpose:
+.. image:: web/logo.png
+
+This is SlingshotSMS, a minimal SMS server which connects GSM modems to 
+websites and applications via a simple HTTP interface.
 
 REQUIREMENTS
 ============
@@ -53,9 +54,12 @@ METHODS
   
   Accepts POST data with keys "message" and "number" and immediately
   dispatches messages to the modem
+* `/status </status>`_ (Returns a multi-line status string)
+* `/list </list>`_ (returns a list of received messages as JSON)
+* /subscribe
 
-DEMO
-----
+Sending a Message
+-----------------
 
 Python::
 
@@ -87,12 +91,9 @@ PHP::
    <input type="submit" value="Send" />
    </form>
 
-* `/status </status>`_ (Returns a multi-line status string)
-* `/list </list>`_ (returns a list of received messages as JSON)
-* /subscribe   (Experimental subscription facility)
 
-DEMO
-----
+Subscribing (beta)
+------------------
 
 >>> params = urllib.urlencode({'endpoint': 'http://127.0.0.1:8888', 'secret': 'crob'})
 >>> urllib.urlopen('http://127.0.0.1:8080/subscribe', params).read()
