@@ -15,6 +15,9 @@ if sys.platform == 'darwin':
         )
 elif sys.platform  == 'win32':
      extra_options = dict(
+         windows = {
+             'icon_resources': [(1, 'app_icon.ico')]
+             },
          setup_requires=['py2exe'],
          app=[mainscript],
          )
@@ -24,7 +27,6 @@ else:
          # and install the main script as such
          scripts=[mainscript],
          )
-    
 
 setup(
     name="SlingshotSMS",
