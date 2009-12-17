@@ -5,7 +5,7 @@ import ConfigParser, time, urllib, sys, os, re
 from xml.dom import minidom
 from rfc822 import parsedate as parsehttpdate
 
-import cherrypy, pygsm, sqlite3
+import cherrypy, pygsm, sqlite3, serial
 from pygsm.autogsmmodem import GsmModemNotFound
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
@@ -251,7 +251,12 @@ if __name__=="__main__":
             cherrypy.config.update(SERVER_CONFIG)
         else:
             cherrypy.config.update("../"+SERVER_CONFIG)
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # see http://www.py2exe.org/index.cgi/WhereAmI
+	# use of __file__ is dangerous when packaging with py2exe and console
+    if hasattr(sys,"frozen"):
+        current_dir=os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
+    else:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
     conf = {'/web': {'tools.staticdir.on': True,
         'tools.staticdir.dir': os.path.join(current_dir, 'web')}}
     cherrypy.quickstart(SMSServer(), '/', config=conf)
