@@ -10,6 +10,8 @@ from pygsm.autogsmmodem import GsmModemNotFound
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 
+import xmlrpc_auth
+
 '''
   SlingshotSMS
   version 1.5
@@ -61,6 +63,8 @@ class SMSServer:
         self.message_watcher.subscribe()
         self.message_watcher.start()
         self.messages_in_queue = []
+        self.xmlrpc_server = xmlrpc_auth.ServicesKey(self.endpoint, domain=self.domain, \
+            key=self.key)
 
     def parse_config(self):
         """no params: this assists in parsing the config file with defaults"""
@@ -93,6 +97,8 @@ class SMSServer:
         self.sms_poll =   self.config.getint    (self.modem_section, 'sms_poll')
         self.mock_modem = self.config.getboolean(self.modem_section, 'mock')
         self.database_file = self.config.get('server', 'database_file')
+        self.key = self.config.get('server', 'key')
+        self.domain = self.config.get('server', 'domain')
         self.endpoint = self.config.get('server', 'endpoint')
 
     def get_real_values(self, message):
@@ -120,14 +126,14 @@ class SMSServer:
         if self.endpoint:
             messages = MessageData.select();
             for message in messages:
-                params = urllib.urlencode(self.get_real_values(message))
+                params = self.get_real_values(message)
                 print "Received ", params
                 print self.endpoint
                 try:
-                    response = urllib.urlopen(self.endpoint, params)
+                    response = self.xmlrpc_server.call('feed.save', 3, {'title': params['sender'], \
+                        'description': params['text'], 'timestamp': params['received']})
                     # only called when urlopen succeeds here
                     message.destroySelf()
-                    print response.read()
                 except Exception, e:
                     print e
 
