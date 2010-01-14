@@ -29,3 +29,4 @@ port=
 # to be completely avoided and want to simply pull
 # from the /list RSS 2.0 feed
 endpoint=
+key=
