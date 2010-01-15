@@ -92,14 +92,17 @@ class SMSServer:
             self.modem_section = 'modem'
 
         self.config.read([config_path, '../'+config_path])
+
         self.port =       self.config.get       (self.modem_section, 'port')
         self.baudrate =   self.config.getint    (self.modem_section, 'baudrate')
         self.sms_poll =   self.config.getint    (self.modem_section, 'sms_poll')
         self.mock_modem = self.config.getboolean(self.modem_section, 'mock')
-        self.database_file = self.config.get('server', 'database_file')
-        self.key = self.config.get('server', 'key')
-        self.domain = self.config.get('server', 'domain')
-        self.endpoint = self.config.get('server', 'endpoint')
+
+        self.database_file = self.config.get    ('server', 'database_file')
+        self.key = self.config.get              ('server', 'key')
+        self.domain = self.config.get           ('server', 'domain')
+        self.endpoint = self.config.get         ('server', 'endpoint')
+        self.node =   self.config.getint        ('server', 'node')
 
     def get_real_values(self, message):
         """ attempts to get values out of an input message which could have a different
@@ -114,7 +117,8 @@ class SMSServer:
         return fields
 
     def post_results(self):
-        '''private method which POSTS messages stored in the database to endpoints defined by self.endpoint'''
+        '''private method which POSTS messages stored in the database 
+        to endpoints defined by self.endpoint'''
 
         # Send messages
         out_messages = OutMessageData.select();
@@ -130,7 +134,7 @@ class SMSServer:
                 print "Received ", params
                 print self.endpoint
                 try:
-                    response = self.xmlrpc_server.call('feed.save', 3, {'title': params['sender'], \
+                    response = self.xmlrpc_server.call('feed.save', self.node, {'title': params['sender'], \
                         'description': params['text'], 'timestamp': params['received']})
                     # only called when urlopen succeeds here
                     message.destroySelf()
