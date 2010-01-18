@@ -30,3 +30,5 @@ port=
 # from the /list RSS 2.0 feed
 endpoint=
 key=
+domain=
+node=0
