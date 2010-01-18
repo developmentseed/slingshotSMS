@@ -63,8 +63,11 @@ class SMSServer:
         self.message_watcher.subscribe()
         self.message_watcher.start()
         self.messages_in_queue = []
-        self.xmlrpc_server = xmlrpc_auth.ServicesKey(self.endpoint, domain=self.domain, \
-            key=self.key)
+        try:
+            self.xmlrpc_server = xmlrpc_auth.ServicesKey(self.endpoint, domain=self.domain, \
+                key=self.key)
+        except:
+            print "XML-RPC server was down; not relaying messages."
 
     def parse_config(self):
         """no params: this assists in parsing the config file with defaults"""
