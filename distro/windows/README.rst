@@ -25,10 +25,6 @@ Manual Installation
 * Edit slingshotsms.txt
 * run ``python slingshotsms.py``
 
-  The main requirement for this tool to work is to get the right serial port
-  set in slingshotsms.py If you have no idea what this is, but you have a modem installed 
-  and connected, you can try running slingshotsms and it can recommend possible ports.
-
 Building
 ========
 
@@ -55,6 +51,29 @@ HTTP Methods
   dispatches messages to the modem
 * `/status </status>`_ (Returns a multi-line status string)
 * `/list </list>`_ (returns a list of received messages as JSON)
+
+Server Authentication
+=====================
+
+With version 2.0, SlingshotSMS introduced a system of key-based authentication 
+similar to Flickr and Amazon Web Services implementations. The default setup 
+is with a Drupal website using the 
+`Services Module <http://drupal.org/project/services>`_ and a feature customized 
+to receive messages. Configuration for this system is in the [server] section of
+the configuration file ``slingshotsms.txt``. A sample configuration might look like
+
+
+server section::
+  
+  endpoint=http://localhost/~tmcw/services-6--1/?q=/services/xmlrpc
+  key=57e3ec004e7b5bfe2e5aeaea0314c3d1
+  domain=localhost
+  node=3
+
+In which node= refers to the node id of the feed object.
+
+Older POST-based message sending is no longer supported because this method is 
+more secure.
 
 Sending a Message
 -----------------
@@ -114,11 +133,4 @@ Troubleshooting
 Roadmap
 =======
 
-* Fully implement subscriptions: subscriptions should be persisted in the 
-  database so that they aren't forgotten on restart
-
-* Detect more modems: currently you can just 'ls /dev' to find all the devices
-  on your system that might be modems, and slingshotsms detects MultiModems
-
-* Implement /list, which should use If-Modified-Since to narrow down results.
-  This is very close to completion, collaboration would be welcome.
+* Unit tests + better test runners
