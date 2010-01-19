@@ -17,6 +17,33 @@ Modem Compatibility
 * `pygsm's wiki <http://wiki.github.com/adammck/pygsm>`_
 * http://code.google.com/p/smslib/wiki/Compatibility
 
+Running SlingshotSMS
+====================
+
+Running on Mac
+--------------
+
+There are two main options:
+
+* To open SlingshotSMS in a terminal, double-click 
+  on SlingshotSMS.command
+* To open SlingshotSMS as an application, double-click on 
+  the SlingshotSMS application icon. If this doesn't boot up,
+  open Console (under System Utilities) to see SlingshotSMS debugging
+  messages
+
+Running on Windows
+------------------
+
+* Double-click on slingshotsms.exe
+
+Running Manually
+----------------
+
+terminal::
+
+   python slingshotsms.py
+
 Manual Installation
 ===================
 
@@ -38,9 +65,18 @@ In cmd.exe::
 Building on Mac
 ---------------
 
-In Terminal.app::
+In terminal.app::
 
-  py2applet slingshotsms.py
+  make buildmac
+
+This Makefile corrects several flaws in the Python packaging workflow:
+
+* py2app excludes are ineffective with Frameworks
+* The docutils recipe for py2app is not actually working 
+  for serious use, because docutils was not written for 
+  any degree of portability
+* iconfile is only a command-line option, rather than an 
+  option that can be set in setup.py
 
 HTTP Methods
 ============
