@@ -1,0 +1,28 @@
+body {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 11.5px;
+  background: #eee;
+}
+
+.doc {
+  background: #fff;
+  width: 620px;
+  padding: 10px;
+  border: 1px solid #aaa;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+pre {
+  background: #fff;
+  padding: 3px;
+}
+
+a {
+  text-decoration: none;
+  color: green;
+}
+
+a:hover {
+  text-decoration: underline;
+}

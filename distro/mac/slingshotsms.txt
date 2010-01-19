@@ -1,0 +1,34 @@
+# SlingshotSMS configuration
+
+# Edit the line port=
+# for whatever modem you're configuring.
+# mac example: port=/dev/tty.MTCBA-U-G1a20
+# win example: port=COM4
+
+[macmodem]
+mock=yes
+sms_poll=4
+port=
+# baudrate=115200
+
+[winmodem]
+mock=no
+sms_poll=4
+port=
+# baudrate=115200
+
+[modem]
+mock=no
+sms_poll=4
+port=
+# baudrate=115200
+
+[server]
+# Default site that will be posted to
+# Send endpoint to blank if you want the posting process
+# to be completely avoided and want to simply pull
+# from the /list RSS 2.0 feed
+endpoint=http://localhost/~tmcw/services-6--1/?q=/services/xmlrpc
+key=57e3ec004e7b5bfe2e5aeaea0314c3d1
+domain=localhost
+node=3
