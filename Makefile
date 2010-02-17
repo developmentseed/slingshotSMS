@@ -1,5 +1,5 @@
 buildmac:
-	python setup.py py2app --iconfile=app_icon.icns --includes=docutils
+	python setup.py py2app --iconfile=app_icon.icns
 	echo "Removing Frameworks"
 	cp -r web dist/SlingshotSMS.app/Contents/MacOS
 	unzip -n dist/SlingshotSMS.app/Contents/Resources/lib/python2.6/site-packages.zip -d dist/SlingshotSMS.app/Contents/Resources/lib/python2.6/
