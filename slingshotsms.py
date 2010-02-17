@@ -5,7 +5,7 @@ import ConfigParser, time, urllib, sys, os, re
 from xml.dom import minidom
 from rfc822 import parsedate as parsehttpdate
 
-import cherrypy, pygsm, sqlite3, serial
+import cherrypy, pygsm, sqlite3, serial, markdown2
 from pygsm.autogsmmodem import GsmModemNotFound
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
@@ -142,11 +142,10 @@ class SMSServer:
 
     def index(self):
         '''exposed method: spash page for SlingshotSMS information & status'''
-        from docutils.core import publish_parts
         
         try:
             # Compile the ReST file into an HTML fragment
-            documentation = publish_parts(source=open('README.rst').read(), writer_name='html')
+            documentation = markdown2.markdown_path('README.md')
             return """
             <html>
                 <head>
@@ -156,7 +155,7 @@ class SMSServer:
                 <body>
                 <div class="doc">%s</div>
                 </body>
-            </html>""" % (documentation['fragment'])
+            </html>""" % (documentation)
         except Exception, e:
             print e
             return "<html><body><h1>SlingshotSMS</h1>README File not found</body></html>"

@@ -14,7 +14,9 @@ body {
 }
 
 pre {
-  background: #fff;
+  background: #eee;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   padding: 3px;
 }
 
