@@ -10,7 +10,7 @@ from pygsm.autogsmmodem import GsmModemNotFound
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 
-import xmlrpc_auth
+import keyauth
 
 '''
   SlingshotSMS
@@ -63,12 +63,7 @@ class SMSServer:
         self.message_watcher.subscribe()
         self.message_watcher.start()
         self.messages_in_queue = []
-        try:
-            self.xmlrpc_server = xmlrpc_auth.ServicesKey(self.endpoint, domain=self.domain, \
-                key=self.key)
-        except:
-            print "XML-RPC server was down; not relaying messages."
-
+        
     def parse_config(self):
         """no params: this assists in parsing the config file with defaults"""
         import ConfigParser
@@ -101,11 +96,9 @@ class SMSServer:
         self.sms_poll =   self.config.getint    (self.modem_section, 'sms_poll')
         self.mock_modem = self.config.getboolean(self.modem_section, 'mock')
 
-        self.database_file = self.config.get    ('server', 'database_file')
-        self.key = self.config.get              ('server', 'key')
-        self.domain = self.config.get           ('server', 'domain')
-        self.endpoint = self.config.get         ('server', 'endpoint')
-        self.node =   self.config.getint        ('server', 'node')
+        self.private_key = self.config.get      ('hmac', 'private_key')
+        self.public_key = self.config.get       ('hmac', 'public_key')
+        self.endpoint = self.config.get         ('hmac', 'endpoint')
 
     def get_real_values(self, message):
         """ attempts to get values out of an input message which could have a different
@@ -137,9 +130,12 @@ class SMSServer:
                 print "Received ", params
                 print self.endpoint
                 try:
-                    response = self.xmlrpc_server.call('feed.save', self.node, {'title': params['sender'], \
-                        'description': params['text'], 'timestamp': params['received']})
+                    response = keyauth.keyauth_post(self.endpoint, self.public_key, self.private_key, \
+                        urllib.urlencode({'timestamp': params['received'], 'title': params['sender'], \
+                        'description': params['text'], 'received': params['received'], \
+                        }))
                     # only called when urlopen succeeds here
+                    print response
                     message.destroySelf()
                 except Exception, e:
                     print e
