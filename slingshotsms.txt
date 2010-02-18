@@ -6,7 +6,7 @@
 # win example: port=COM4
 
 [macmodem]
-mock=no
+mock=yes
 sms_poll=4
 port=
 # baudrate=115200
@@ -23,12 +23,16 @@ sms_poll=4
 port=
 # baudrate=115200
 
-[server]
-# Default site that will be posted to
-# Send endpoint to blank if you want the posting process
-# to be completely avoided and want to simply pull
-# from the /list RSS 2.0 feed
+# The HMAC section contains
+# configuration for SlingshotSMS
+# to talk to Drupal or another HMAC-
+# implementing application.
+#
+# Get the configuration for this 
+# section from admin/settings/slingshot
+# and paste over the example section
+# below
+[hmac]
 endpoint=
-key=
-domain=
-node=0
+public_key=
+private_key=
