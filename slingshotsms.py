@@ -134,8 +134,6 @@ class SMSServer:
                         urllib.urlencode({'timestamp': params['received'], 'title': params['sender'], \
                         'description': params['text'], 'received': params['received'], \
                         }))
-                    # only called when urlopen succeeds here
-                    print response
                     message.destroySelf()
                 except Exception, e:
                     print e

@@ -28,6 +28,6 @@ else:
 
 setup(
     name="SlingshotSMS",
-    data_files=['README.rst'],
+    data_files=['README.md'],
     **extra_options
     )
