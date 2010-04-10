@@ -80,6 +80,27 @@ a:hover {
           font-size: 12px;
         }
 
+.contact {
+  padding: 5px;
+  border-top: 1px solid #ccc;
+  height: 40px;
+}
+
+.contact dt {
+  font-weight: bold;
+}
+
+.contact dd, dt {
+  display: block;
+  margin-left: 60px;
+}
+
+.contact-photo {
+  float: left;
+  width: 50px;
+  height: 50px;
+}
+
 /**
  * Status Message
  */

@@ -34,6 +34,7 @@ class ContactData(SQLObject):
     # http://en.wikipedia.org/wiki/VCard
     TEL = StringCol()
     UID = StringCol()
+    PHOTO = BLOBCol()
     N = StringCol()
     FN = StringCol()
     # contains all data as serialized vc, including the above columns
@@ -274,11 +275,13 @@ class SMSServer:
 
     # TODO: support other formats + limit the list
     def contact_list(self, limit = 200, format = 'json'):
+        import base64
         contacts = ContactData.select()
         return json.dumps([{
             'TEL':    contact.TEL,
             'N':      contact.N,
             'UID':    contact.UID,
+            'PHOTO':    base64.b64encode(contact.PHOTO),
             'FN':     contact.FN,} for contact in contacts])
     contact_list.exposed = True
 
@@ -289,6 +292,7 @@ class SMSServer:
                 # TODO: filter out contacts that don't have a telephone number
                 ContactData(FN=v.fn.value,
                     TEL=v.tel.value,
+                    PHOTO=v.photo.value,
                     UID='blah', #TODO: implement UID checking / generation
                     N="%s %s" % (v.n.value.given, v.n.value.family),
                     data=str(v.serialize()))

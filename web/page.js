@@ -22,17 +22,19 @@ function recieve_messages() {
   });
 }
 
-function add_contact(name, num) {
+function add_contact(name, num, photo) {
   var ct = $('#contact-template').clone().appendTo('#contact-list');
   ct.removeAttr('id');
   ct.find('.contact-name').text(name);
   ct.find('.contact-number').text(num);
+  ct.find('.contact-photo').attr('src', 'data:image/png;base64,' + photo);
+  ct.show();
 }
 
 function recieve_contacts() {
   slingshot.contacts({}, function(data) {
       for(var i = 0; i < data.length; i++) {
-        add_contact(data[i].FN, data[i].TEL);
+        add_contact(data[i].FN, data[i].TEL, data[i].PHOTO);
       }
   });
 }
