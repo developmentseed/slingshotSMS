@@ -24,6 +24,8 @@ import keyauth
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
 
+# TODO: create model for tagging
+
 class MessageData(SQLObject):
     _connection = SQLiteConnection('slingshotsms.db')
     # in sqlite, these columns will be default null
@@ -84,13 +86,7 @@ class SMSServer:
 
         # Choose modem sections based on OS in order to have a singular
         # config file
-        # TODO: just have the sections named the same as the platforms 
-        if sys.platform == 'win32':
-            self.modem_section = 'winmodem'
-        elif sys.platform == 'darwin':
-            self.modem_section = 'macmodem'
-        else:
-            self.modem_section = 'modem'
+        self.modem_section = sys.platform
 
         self.config.read([config_path, '../'+config_path])
 
@@ -100,12 +96,13 @@ class SMSServer:
         self.mock_modem = self.config.getboolean(self.modem_section, 'mock')
 
         self.private_key = self.config.get      ('hmac', 'private_key')
-        self.public_key = self.config.get       ('hmac', 'public_key')
-        self.endpoint = self.config.get         ('hmac', 'endpoint')
+        self.public_key =  self.config.get      ('hmac', 'public_key')
+        self.endpoint =    self.config.get      ('hmac', 'endpoint')
 
     def get_real_values(self, message):
         """ attempts to get values out of an input message which could have a different
         form, depending on modem choice"""
+        # TODO: rewrite
         fields = {}
         if message.sent is not None:
             fields['sent'] = message.sent
@@ -140,6 +137,30 @@ class SMSServer:
                     message.destroySelf()
                 except Exception, e:
                     print e
+    def retrieve_sms(self):
+        if self.mock_modem:
+            print "Mocking modem, no SMS will be received."
+            self.post_results()
+            return
+        try:
+            msg = self.modem.next_message()
+            if msg is not None:
+                print "Message retrieved"
+                data = {}
+                # some modems do not provide these attributes
+                try:
+                    # print int(time.mktime(msg.sent.timetuple()))
+                    data['sent'] = int(time.mktime(time.localtime(int(msg.sent.strftime('%s')))))
+                except Exception, e:
+                    print e
+                    pass
+                # we can count on these attributes from all modems
+                data['sender'] = msg.sender
+                data['text'] = msg.text
+                MessageData(**data)
+        except Exception, e:
+            print "Exception caught: ", e
+        self.post_results()
 
     def index(self):
         '''exposed self: input home'''
@@ -150,7 +171,6 @@ class SMSServer:
 
     def docs(self):
         '''exposed method: spash page for SlingshotSMS information & status'''
-        
         try:
             # Compile the ReST file into an HTML fragment
             documentation = markdown2.markdown_path('README.md')
@@ -204,32 +224,7 @@ class SMSServer:
             return "ok"
     send.exposed = True
 
-    def retrieve_sms(self):
-        if self.mock_modem:
-            print "Mocking modem, no SMS will be received."
-            self.post_results()
-            return
-        try:
-            msg = self.modem.next_message()
-            if msg is not None:
-                print "Message retrieved"
-                data = {}
-                # some modems do not provide these attributes
-                try:
-                    # print int(time.mktime(msg.sent.timetuple()))
-                    data['sent'] = int(time.mktime(time.localtime(int(msg.sent.strftime('%s')))))
-                except Exception, e:
-                    print e
-                    pass
-                # we can count on these attributes from all modems
-                data['sender'] = msg.sender
-                data['text'] = msg.text
-                MessageData(**data)
-        except Exception, e:
-            print "Exception caught: ", e
-        self.post_results()
-
-    def list(self, limit = 100):
+    def list(self, limit = 100, format = 'rss'):
         """ exposed method that generates a list of messages in RSS 2.0 """
         import PyRSS2Gen, datetime
         from socket import gethostname, gethostbyname

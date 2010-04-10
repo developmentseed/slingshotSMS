@@ -5,13 +5,13 @@
 # mac example: port=/dev/tty.MTCBA-U-G1a20
 # win example: port=COM4
 
-[macmodem]
+[darwin]
 mock=yes
 sms_poll=4
 port=
 # baudrate=115200
 
-[winmodem]
+[win32]
 mock=no
 sms_poll=4
 port=
