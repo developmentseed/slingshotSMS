@@ -268,9 +268,9 @@ class SMSServer:
             return rss.to_xml()
         if format == 'json':
             return json.dumps([{
-                'description': message.description,
+                'text': message.text,
                 'sender': message.sender,
-                'sent': datetime.datetime.fromtimestamp(message.sent)} for message in messages])
+                'sent': datetime.datetime.fromtimestamp(message.sent).strftime('%Y-%m-%dT%H:%M:%S')} for message in messages])
     list.exposed = True
 
     # TODO: support other formats + limit the list
