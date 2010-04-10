@@ -1,7 +1,7 @@
 body {
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 11.5px;
-  background: #eee;
+  background: #fff;
 }
 
 .doc {
@@ -28,3 +28,41 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+/**
+ * New Page: The area above this should be deleted soon
+ */
+
+#content {
+  float: left;
+  width: 65%;
+}
+
+#right {
+  float: right;
+  width: 34.99%;
+}
+
+  .region {
+    padding: 10px 20px;
+  }
+
+    .block {
+      border: 1px solid #ccc;
+      background-color: #eee;
+      border-top-left-radius: 5px 5px;
+      border-top-right-radius: 5px 5px;
+      border-bottom-left-radius: 5px 5px;
+      border-bottom-right-radius: 5px 5px;
+    }
+
+      .block h2.block-title {
+        margin: 0;
+        padding: 5px 10px;
+        background: -webkit-gradient(
+          linear, 0 50%, 0 100%, from(#ddd), to(#ccc)
+        );
+        text-shadow: white 0px 1px 0px;
+        font-size: 13px;
+      }
+
