@@ -49,5 +49,17 @@ SlingshotSMS.prototype = {
     $.getJSON(
       '/status', callback
     );
-  }
+  },
+
+  /**
+   * pull a list of contacts from the server
+   */
+  contacts: function(options, callback) {
+    $.extend(
+      options, { limit: 200, format: 'json' }
+    );
+    $.getJSON(
+      '/contact_list', options, callback
+    );
+  },
 };

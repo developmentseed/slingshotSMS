@@ -272,7 +272,8 @@ class SMSServer:
                 'sent': datetime.datetime.fromtimestamp(message.sent)} for message in messages])
     list.exposed = True
 
-    def contact_list(self):
+    # TODO: support other formats + limit the list
+    def contact_list(self, limit = 200, format = 'json'):
         contacts = ContactData.select()
         return json.dumps([{
             'TEL':    contact.TEL,
@@ -284,10 +285,11 @@ class SMSServer:
     def import_vcard(self, vcard_file = ''):
         try:
             v = vobject.readOne(vcard_file.value)
+            print v.FN.value
             ContactData(FN=str(v.fn),
-                TEL=str(v.tel),
+                TEL=str(v.tel.value),
                 UID='blah', #TODO: implement UID checking / generation
-                N=str(v.n),
+                N=str(v.n.value),
                 data=str(v.serialize()))
             return 'Contact saved'
         except Exception, e:
