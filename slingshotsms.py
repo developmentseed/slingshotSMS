@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-import ConfigParser, time, urllib, sys, os, re
+import ConfigParser, time, urllib, sys, os, re, json
 from xml.dom import minidom
 from rfc822 import parsedate as parsehttpdate
 
@@ -137,6 +137,7 @@ class SMSServer:
                     message.destroySelf()
                 except Exception, e:
                     print e
+
     def retrieve_sms(self):
         if self.mock_modem:
             print "Mocking modem, no SMS will be received."
@@ -207,7 +208,7 @@ class SMSServer:
             status['port'] = self.modem.device_kwargs['port']
             status['baudrate'] = self.modem.device_kwargs['baudrate']
         status['endpoint'] = self.endpoint
-        return repr(status)
+        return json.dumps(status)
     status.exposed = True
 
     def send(self, number=None, message=None):
