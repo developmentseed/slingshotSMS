@@ -22,8 +22,7 @@ SlingshotSMS.prototype = {
    */
   send: function(options, callback) {
     $.extend(
-      { format: 'json' },
-      options
+      { format: 'json' }, options
     );
     $.getJSON(
       '/send', options, callback
@@ -36,20 +35,17 @@ SlingshotSMS.prototype = {
    */
   receive: function(options, callback) {
     $.extend(
-      { limit: 200, format: 'json' },
-      options
+      options, { limit: 200, format: 'json' }
     );
     $.getJSON(
       '/list', options, callback
     );
-    console.log('not implemented');
   },
 
   /**
    * get the modem's status
    */
   status: function(callback) {
-    console.log(callback);
     $.getJSON(
       '/status', callback
     );

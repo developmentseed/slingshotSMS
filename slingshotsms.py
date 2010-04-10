@@ -20,6 +20,7 @@ import keyauth
 '''
 
 # TODO: built complete mock modem for better testing
+# TODO: standardize meaning of message, sent, sender, received, etc., throughout
 
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
@@ -230,20 +231,27 @@ class SMSServer:
         import PyRSS2Gen, datetime
         from socket import gethostname, gethostbyname
         date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
+        limit = int(limit)
         if date:
             messages = MessageData.select().filter(MessageData.q.received>date).limit(limit);
         else:
             messages = MessageData.select().limit(limit)
-        rss = PyRSS2Gen.RSS2(
-                title = "SlingshotSMS on %s" % gethostname(),
-                link = gethostbyname(gethostname()),
-                description = "Incoming SMS messages",
-                lastBuildDate = datetime.datetime.now(),
-                items = [PyRSS2Gen.RSSItem(
-                    description = message.text,
-                    author = message.sender,
-                    pubDate = datetime.datetime.fromtimestamp(message.sent)) for message in messages])
-        return rss.to_xml()
+        if format == 'rss':
+            rss = PyRSS2Gen.RSS2(
+                    title = "SlingshotSMS on %s" % gethostname(),
+                    link = gethostbyname(gethostname()),
+                    description = "Incoming SMS messages",
+                    lastBuildDate = datetime.datetime.now(),
+                    items = [PyRSS2Gen.RSSItem(
+                        description = message.text,
+                        author = message.sender,
+                        pubDate = datetime.datetime.fromtimestamp(message.sent)) for message in messages])
+            return rss.to_xml()
+        if format == 'json':
+            return json.dumps([{
+                'description': message.description,
+                'sender': message.sender,
+                'sent': datetime.datetime.fromtimestamp(message.sent)} for message in messages])
     list.exposed = True
 
 if __name__=="__main__":

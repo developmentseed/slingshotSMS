@@ -73,3 +73,16 @@ a:hover {
         font-size: 13px;
       }
 
+        span.block-title-sidenote {
+          color: #444;
+          text-shadow: none;
+          font-size: 12px;
+        }
+
+/**
+ * Status Message
+ */
+.error-string {
+  color: red;
+  font-weight: bold;
+}
