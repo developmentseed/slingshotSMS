@@ -141,6 +141,13 @@ class SMSServer:
                 except Exception, e:
                     print e
 
+    def index(self):
+        '''exposed self: input home'''
+        # TODO: rewrite, place index.html elsewhere
+        homepage = open('index.html')
+        return homepage.read()
+    index.exposed = True
+
     def docs(self):
         '''exposed method: spash page for SlingshotSMS information & status'''
         
