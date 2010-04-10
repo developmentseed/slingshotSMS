@@ -14,7 +14,7 @@ import keyauth
 
 '''
   SlingshotSMS
-  version 1.5
+  version 2.0 Goliath
   Tom MacWright
   http://www.developmentseed.org/
 '''
