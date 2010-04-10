@@ -21,6 +21,7 @@ import keyauth
 
 # TODO: built complete mock modem for better testing
 # TODO: standardize meaning of message, sent, sender, received, etc., throughout
+# TODO: create favicon
 
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
@@ -208,6 +209,8 @@ class SMSServer:
 
     def reset(self):
         """ Drop and recreate all tables according to schema. """
+        ContactData.dropTable(True)
+        ContactData.createTable()
         MessageData.dropTable(True)
         MessageData.createTable()
         OutMessageData.dropTable(True)
@@ -268,6 +271,28 @@ class SMSServer:
                 'sender': message.sender,
                 'sent': datetime.datetime.fromtimestamp(message.sent)} for message in messages])
     list.exposed = True
+
+    def contact_list(self):
+        contacts = ContactData.select()
+        return json.dumps([{
+            'TEL':    contact.TEL,
+            'N':      contact.N,
+            'UID':    contact.UID,
+            'FN':     contact.FN,} for contact in contacts])
+    contact_list.exposed = True
+
+    def import_vcard(self, vcard_file = ''):
+        try:
+            v = vobject.readOne(vcard_file.value)
+            ContactData(FN=str(v.fn),
+                TEL=str(v.tel),
+                UID='blah', #TODO: implement UID checking / generation
+                N=str(v.n),
+                data=str(v.serialize()))
+            return 'Contact saved'
+        except Exception, e:
+            return "This contact could not be saved"
+    import_vcard.exposed = True
 
 if __name__=="__main__":
     """ run as command line """

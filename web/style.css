@@ -54,6 +54,7 @@ a:hover {
       border-top-right-radius: 5px 5px;
       border-bottom-left-radius: 5px 5px;
       border-bottom-right-radius: 5px 5px;
+      margin-bottom: 10px;
     }
 
       .block .block-content {
