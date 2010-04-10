@@ -284,15 +284,17 @@ class SMSServer:
 
     def import_vcard(self, vcard_file = ''):
         try:
-            v = vobject.readOne(vcard_file.value)
-            print v.FN.value
-            ContactData(FN=str(v.fn),
-                TEL=str(v.tel.value),
-                UID='blah', #TODO: implement UID checking / generation
-                N=str(v.n.value),
-                data=str(v.serialize()))
+            vs = vobject.readComponents(vcard_file.value)
+            for v in vs:
+                # TODO: filter out contacts that don't have a telephone number
+                ContactData(FN=v.fn.value,
+                    TEL=v.tel.value,
+                    UID='blah', #TODO: implement UID checking / generation
+                    N="%s %s" % (v.n.value.given, v.n.value.family),
+                    data=str(v.serialize()))
             return 'Contact saved'
         except Exception, e:
+            print e
             return "This contact could not be saved"
     import_vcard.exposed = True
 
