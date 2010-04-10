@@ -19,6 +19,8 @@ import keyauth
   http://www.developmentseed.org/
 '''
 
+# TODO: built complete mock modem for better testing
+
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
 
@@ -82,6 +84,7 @@ class SMSServer:
 
         # Choose modem sections based on OS in order to have a singular
         # config file
+        # TODO: just have the sections named the same as the platforms 
         if sys.platform == 'win32':
             self.modem_section = 'winmodem'
         elif sys.platform == 'darwin':
@@ -138,7 +141,7 @@ class SMSServer:
                 except Exception, e:
                     print e
 
-    def index(self):
+    def docs(self):
         '''exposed method: spash page for SlingshotSMS information & status'''
         
         try:
@@ -157,7 +160,7 @@ class SMSServer:
         except Exception, e:
             print e
             return "<html><body><h1>SlingshotSMS</h1>README File not found</body></html>"
-    index.exposed = True
+    docs.exposed = True
 
     def reset(self):
         """ Drop and recreate all tables according to schema. """
@@ -171,17 +174,13 @@ class SMSServer:
     def status(self):
         """ exposed method: returns JSON object of status information """
         status = {}
-
         if self.mock_modem:
             status['port'] = 'mocking'
         else:
             status['port'] = self.modem.device_kwargs['port']
             status['baudrate'] = self.modem.device_kwargs['baudrate']
-
         status['endpoint'] = self.endpoint
-
         return repr(status)
-
     status.exposed = True
 
     def send(self, number=None, message=None):
@@ -223,15 +222,15 @@ class SMSServer:
             print "Exception caught: ", e
         self.post_results()
 
-    def list(self):
+    def list(self, limit = 100):
         """ exposed method that generates a list of messages in RSS 2.0 """
         import PyRSS2Gen, datetime
         from socket import gethostname, gethostbyname
         date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
         if date:
-            messages = MessageData.select().filter(MessageData.q.received>date);
+            messages = MessageData.select().filter(MessageData.q.received>date).limit(limit);
         else:
-            messages = MessageData.select().limit(100)
+            messages = MessageData.select().limit(limit)
         rss = PyRSS2Gen.RSS2(
                 title = "SlingshotSMS on %s" % gethostname(),
                 link = gethostbyname(gethostname()),
