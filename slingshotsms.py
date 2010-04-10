@@ -5,9 +5,9 @@ import ConfigParser, time, urllib, sys, os, re, json
 from xml.dom import minidom
 from rfc822 import parsedate as parsehttpdate
 
-import cherrypy, pygsm, sqlite3, serial, markdown2
+import cherrypy, pygsm, sqlite3, serial, markdown2, vobject
 from pygsm.autogsmmodem import GsmModemNotFound
-from sqlobject import SQLObject, IntCol, StringCol
+from sqlobject import SQLObject, IntCol, StringCol, BLOBCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 
 import keyauth
@@ -27,6 +27,17 @@ SERVER_CONFIG = "server.txt"
 
 # TODO: create model for tagging
 
+class ContactData(SQLObject):
+    _connection = SQLiteConnection('slingshotsms.db')
+    # in reference to
+    # http://en.wikipedia.org/wiki/VCard
+    TEL = StringCol()
+    UID = StringCol()
+    N = StringCol()
+    FN = StringCol()
+    # contains all data as serialized vc, including the above columns
+    data = BLOBCol()
+
 class MessageData(SQLObject):
     _connection = SQLiteConnection('slingshotsms.db')
     # in sqlite, these columns will be default null
@@ -40,6 +51,9 @@ class OutMessageData(SQLObject):
     number = StringCol()
     text = StringCol()
 
+# TODO: vcard export
+# TODO: vcard import 
+# TODO: contacts interface 
 class SMSServer:
     def __init__(self, config=None):
         '''
@@ -121,6 +135,7 @@ class SMSServer:
         out_messages = OutMessageData.select();
         for out_message in out_messages:
             self.modem.send_sms(out_message.number, out_message.text)
+            # TODO: mark messages as sent instead of destroying
             out_message.destroySelf()
 
         # Post retrieved messages if endpoint is set
