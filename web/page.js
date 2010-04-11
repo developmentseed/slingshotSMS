@@ -75,5 +75,17 @@ $(document).ready(
         multiple: true
       }
     );
+
+    $('#message_text').keyup(
+      function() {
+        var chars_remaining = 160 - $(this).val().length;
+        if(chars_remaining < 0) {
+          $('#message_chars').addClass('error-string');
+        } else {
+          $('#message_chars').removeClass('error-string');
+        }
+        $('#message_chars_remaining').text(chars_remaining);
+      }
+    );
   }
 );
