@@ -66,5 +66,14 @@ $(document).ready(
       new_action();
       return false;
     });
+
+
+    var data = "Core Selectors Attributes Traversing Manipulation CSS Events Effects Ajax Utilities".split(" ");
+    
+    $('#message_to').autocomplete('/contact_list',
+      {
+        multiple: true
+      }
+    );
   }
 );

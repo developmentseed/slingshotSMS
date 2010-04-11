@@ -6,7 +6,9 @@
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' /> 
     <title>SlingshotSMS</title>
     <link rel='stylesheet' type='text/css' href='web/style.css' />
+    <link rel='stylesheet' type='text/css' href='web/jquery-autocomplete/jquery.autocomplete.css' />
     <script type='text/javascript' src='web/jquery.min.js'></script> 
+    <script type='text/javascript' src='web/jquery-autocomplete/jquery.autocomplete.pack.js'></script> 
     <script type='text/javascript' src='web/slingshot.js'></script> 
     <script type='text/javascript' src='web/page.js'></script> 
   </head>
@@ -14,6 +16,21 @@
     <div id='wrapper'>
       <div id='content'>
         <div class='region'>
+          <div class='block'>
+            <h2 class='block-title'>
+              Compose
+            </h2>
+          <div class='block-content'>
+              <form id='compose_form' method='POST'>
+                <!-- TODO: 160 char countdown indicator -->
+                <label for='message_to'>To:</label>
+                <textarea name='message_to' id='message_to'></textarea>
+                <label for='message_text'>Text:</label>
+                <textarea name='message_text' id='message_text'></textarea>
+                <input type='submit' value='Send' />
+              </form>
+            </div>
+          </div>
           <div class='block'>
             <h2 class='block-title'>
               Messages <span class='block-title-sidenote' id='message_count'></span>
@@ -38,18 +55,6 @@
             <div class='block-content'>
               <p>Version 2,000 Goliath</p>
               <span id='status'></span>
-            </div>
-          </div>
-          <div class='block'>
-            <h2 class='block-title'>
-              Compose
-            </h2>
-            <div class='block-content'>
-              <form id='compose_form' method='POST'>
-                <div id='message_to'></div>
-                <textarea name='message_text' id='message_text'></textarea>
-                <input type='submit' value='Send' />
-              </form>
             </div>
           </div>
           <div class='block'>

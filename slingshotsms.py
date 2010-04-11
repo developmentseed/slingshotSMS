@@ -275,15 +275,20 @@ class SMSServer:
     list.exposed = True
 
     # TODO: support other formats + limit the list
-    def contact_list(self, limit = 200, format = 'json'):
-        import base64
-        contacts = ContactData.select()
-        return json.dumps([{
-            'TEL':    contact.TEL,
-            'N':      contact.N,
-            'UID':    contact.UID,
-            'PHOTO':    base64.b64encode(contact.PHOTO),
-            'FN':     contact.FN,} for contact in contacts])
+    def contact_list(self, limit = 200, format = 'json', q = False, timestamp = 0):
+        if q:
+            import base64
+            contacts = ContactData.select()
+            return "\n".join(["%s <%s>" % (contact.FN, contact.TEL) for contact in contacts])
+        else:
+            import base64
+            contacts = ContactData.select()
+            return json.dumps([{
+                'TEL':    contact.TEL,
+                'N':      contact.N,
+                'UID':    contact.UID,
+                'PHOTO':    base64.b64encode(contact.PHOTO),
+                'FN':     contact.FN,} for contact in contacts])
     contact_list.exposed = True
 
     def import_vcard(self, vcard_file = ''):
