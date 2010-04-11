@@ -22,6 +22,7 @@ import keyauth
 # TODO: built complete mock modem for better testing
 # TODO: standardize meaning of message, sent, sender, received, etc., throughout
 # TODO: create favicon
+# TODO: have json-returning pages return correct Content-Type
 
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
@@ -286,6 +287,7 @@ class SMSServer:
     contact_list.exposed = True
 
     def import_vcard(self, vcard_file = ''):
+        """ given a vcard_file FieldStorage object, import vCards """
         try:
             vs = vobject.readComponents(vcard_file.value)
             for v in vs:
@@ -301,6 +303,13 @@ class SMSServer:
             print e
             return "This contact could not be saved"
     import_vcard.exposed = True
+
+    def export_vcard(self):
+        contacts = ContactData.select()
+        contact_string = "\n".join([contact.data for contact in contacts])
+        cherrypy.response.headers['Content-Disposition'] = "attachment; filename=vCards.vcf"
+        return contact_string
+    export_vcard.exposed = True
 
 if __name__=="__main__":
     """ run as command line """

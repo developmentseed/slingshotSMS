@@ -3,6 +3,14 @@
 This is SlingshotSMS, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple HTTP interface.
 
+# Goliath
+
+This is the Goliath branch of SlingshotSMS - it's not for public 
+consumption yet, but it's very interesting if you're willing to tweak. 
+Instead of just being a REST endpoint, this turns SlinghostSMS into a 
+lightweight, scriptable interface for input and output of text messages. 
+It has vCard import, Javascript hooks, a Javascript API, and much more.
+
 # Requirements
 
 * AT-compatible GSM modem

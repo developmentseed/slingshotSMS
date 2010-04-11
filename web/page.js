@@ -51,7 +51,7 @@ function receive_contacts() {
 }
 
 
-$(window).ready(
+$(document).ready(
   function() {
     slingshot = new SlingshotSMS();
     setTimeout("watch_status()", 500);
@@ -59,5 +59,12 @@ $(window).ready(
     setTimeout("receive_contacts()", 500);
     setInterval("watch_status()", 50000);
     setInterval("receive_messages()", 50000);
+
+    $('#add_action').click(function() {
+      var action_text = $('#action_text').val();
+      var new_action = eval('action = ' + action_text);
+      new_action();
+      return false;
+    });
   }
 );

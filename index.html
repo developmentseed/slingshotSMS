@@ -47,7 +47,7 @@
             <div class='block-content'>
               <form id='compose_form' method='POST'>
                 <div id='message_to'></div>
-                <textarea name='message'></textarea>
+                <textarea name='message_text' id='message_text'></textarea>
                 <input type='submit' value='Send' />
               </form>
             </div>
@@ -57,7 +57,8 @@
               Contacts
             </h2>
             <div class='block-content'>
-              <form id='vcard_form' method='POST' enctype='multipart/form-data' action='/import_vcard'>
+              <form id='vcard_form' method='POST' 
+                enctype='multipart/form-data' action='/import_vcard'>
                 <input type='file' name='vcard_file' value='vCard file' />
                 <input type='submit' value='Upload' />
               </form>
@@ -68,6 +69,17 @@
               </dl>
               <div id='contact-list'>
               </div>
+              <a href='/export_vcard'>vCard Export</a>
+            </div>
+          </div>
+          <div class='block'>
+            <h2 class='block-title'>
+              Actions
+            </h2>
+            <div class='block-content'>
+                <textarea name='action_text' id='action_text'></textarea>
+                <button id='add_action'>Add Action</button>
+            </div>
           </div>
         </div>
       </div>

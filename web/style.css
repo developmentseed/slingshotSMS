@@ -44,7 +44,7 @@ a:hover {
 }
 
   .region {
-    padding: 10px 20px;
+    padding: 20px 10px;
   }
 
     .block {
@@ -107,4 +107,11 @@ a:hover {
 .error-string {
   color: red;
   font-weight: bold;
+}
+
+/**
+ * Composing window
+ */
+#message_text, #action_text {
+  width: 97%;
 }
