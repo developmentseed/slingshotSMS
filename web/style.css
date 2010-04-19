@@ -115,3 +115,11 @@ a:hover {
 textarea {
   width: 97%;
 }
+
+#action_text {
+  font-family: monospace;
+}
+
+#action-list li {
+  font-family: monospace;
+}
