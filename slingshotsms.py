@@ -6,7 +6,7 @@ from xml.dom import minidom
 from rfc822 import parsedate as parsehttpdate
 
 import cherrypy, pygsm, sqlite3, serial, markdown2, vobject
-from pygsm.autogsmmodem import GsmModemNotFound
+# from pygsm.autogsmmodem import GsmModemNotFound
 from sqlobject import SQLObject, IntCol, StringCol, BLOBCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 
@@ -42,21 +42,21 @@ class ContactData(SQLObject):
     data = BLOBCol()
 
 class MessageData(SQLObject):
+    ''' message storage - contains everything sent, plus freeform tags '''
     _connection = SQLiteConnection('slingshotsms.db')
     # in sqlite, these columns will be default null
     sent = IntCol(default=None)
     received = IntCol(default=None)
     sender = StringCol()
     text = StringCol()
+    tags = StringCol()
 
 class OutMessageData(SQLObject):
+    ''' messages going out - these are essentially a queue '''
     _connection = SQLiteConnection('slingshotsms.db')
     number = StringCol()
     text = StringCol()
 
-# TODO: vcard export
-# TODO: vcard import 
-# TODO: contacts interface 
 class SMSServer:
     def __init__(self, config=None):
         '''
@@ -149,15 +149,21 @@ class SMSServer:
                 print "Received ", params
                 print self.endpoint
                 try:
-                    response = keyauth.keyauth_post(self.endpoint, self.public_key, self.private_key, \
-                        urllib.urlencode({'timestamp': params['received'], 'title': params['sender'], \
-                        'description': params['text'], 'received': params['received'], \
-                        }))
+                    response = keyauth.keyauth_post(self.endpoint,
+                            self.public_key, 
+                            self.private_key, \
+                            urllib.urlencode({
+                                'timestamp': params['received'], 
+                                'title': params['sender'], \
+                                'description': params['text'], \
+                                'received': params['received'], \
+                            }))
                     message.destroySelf()
                 except Exception, e:
                     print e
 
     def retrieve_sms(self):
+        ''' worker method, runs in a separate thread watching for messages '''
         if self.mock_modem:
             print "Mocking modem, no SMS will be received."
             self.post_results()
@@ -170,6 +176,7 @@ class SMSServer:
                 # some modems do not provide these attributes
                 try:
                     # print int(time.mktime(msg.sent.timetuple()))
+                    # TODO: simplify
                     data['sent'] = int(time.mktime(time.localtime(int(msg.sent.strftime('%s')))))
                 except Exception, e:
                     print e
@@ -192,7 +199,6 @@ class SMSServer:
     def docs(self):
         '''exposed method: spash page for SlingshotSMS information & status'''
         try:
-            # Compile the ReST file into an HTML fragment
             documentation = markdown2.markdown_path('README.md')
             return """
             <html>
@@ -265,13 +271,15 @@ class SMSServer:
                     items = [PyRSS2Gen.RSSItem(
                         description = message.text,
                         author = message.sender,
-                        pubDate = datetime.datetime.fromtimestamp(message.sent)) for message in messages])
+                        pubDate = datetime.datetime.fromtimestamp(message.sent)) 
+                        for message in messages])
             return rss.to_xml()
         if format == 'json':
             return json.dumps([{
                 'text': message.text,
                 'sender': message.sender,
-                'sent': datetime.datetime.fromtimestamp(message.sent).strftime('%Y-%m-%dT%H:%M:%S')} for message in messages])
+                'sent': datetime.datetime.fromtimestamp(message.sent).strftime('%Y-%m-%dT%H:%M:%S')} 
+                for message in messages])
     list.exposed = True
 
     # TODO: support other formats + limit the list
@@ -316,7 +324,18 @@ class SMSServer:
         return contact_string
     export_vcard.exposed = True
 
-if __name__=="__main__":
+
+
+# class Relog(cherrypy.process.plugins.SimplePlugin):
+# 
+#     def log(self, msg, a):
+#         print msg
+# 
+# cherrypy.engine.relog = Relog(cherrypy.engine)
+# cherrypy.engine.relog.subscribe()
+
+
+def start():
     """ run as command line """
     # hasattr(sys, 'frozen') confirms that this is running as a py2app-compiled Application
     if sys.platform == 'darwin' and hasattr(sys, 'frozen'):
@@ -337,4 +356,7 @@ if __name__=="__main__":
         current_dir = os.path.dirname(os.path.abspath(__file__))
     conf = {'/web': {'tools.staticdir.on': True,
         'tools.staticdir.dir': os.path.join(current_dir, 'web')}}
-    cherrypy.quickstart(SMSServer(), '/', config=conf)
+    return cherrypy.quickstart(SMSServer(), '/', config=conf)
+
+if __name__ == "__main__":
+    start()

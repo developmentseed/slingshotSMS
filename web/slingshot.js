@@ -1,6 +1,6 @@
 /**
  * SlingshotSMS
- * (c) Tom MacWright 2010
+ * (c) Development Seed 2010
  */
 
 var SlingshotSMS = function(opts) {
@@ -63,34 +63,3 @@ SlingshotSMS.prototype = {
     );
   },
 };
-
-var Message = function(opts) {
-	this.init(opts);
-}
-
-Message.prototype = {
-  /**
-   * Create instance of 
-   * SlingshotSMS controller
-   */
-  init: function(text, sender) {
-    this.text = text;
-    this.sender = sender;
-  },
-
-  forward: function(num) {
-    console.log('stub');
-  },
-
-  reply: function(text) {
-    console.log('stub');
-  },
-
-  remove: function() {
-    console.log('stub');
-  },
-
-  tag: function() {
-    console.log('stub');
-  },
-}

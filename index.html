@@ -6,10 +6,13 @@
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' /> 
     <title>SlingshotSMS</title>
     <link rel='stylesheet' type='text/css' href='web/style.css' />
-    <link rel='stylesheet' type='text/css' href='web/jquery-autocomplete/jquery.autocomplete.css' />
+    <link rel='stylesheet' type='text/css' 
+      href='web/jquery-autocomplete/jquery.autocomplete.css' />
     <script type='text/javascript' src='web/jquery.min.js'></script> 
-    <script type='text/javascript' src='web/jquery-autocomplete/jquery.autocomplete.pack.js'></script> 
+    <script type='text/javascript' 
+      src='web/jquery-autocomplete/jquery.autocomplete.pack.js'></script> 
     <script type='text/javascript' src='web/slingshot.js'></script> 
+    <script type='text/javascript' src='web/message.js'></script> 
     <script type='text/javascript' src='web/page.js'></script> 
   </head>
   <body>
@@ -28,7 +31,9 @@
                 <label for='message_text'>Text:</label>
                 <textarea name='message_text' id='message_text'></textarea>
                 <br />
-                <span id='message_chars'><span id='message_chars_remaining'></span> characters remaining</span>
+                <span id='message_chars'>
+                  <span id='message_chars_remaining'></span> characters remaining
+                </span>
                 <br />
                 <input type='submit' value='Send' />
               </form>
