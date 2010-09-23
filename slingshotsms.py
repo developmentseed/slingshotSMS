@@ -19,6 +19,15 @@ import keyauth
   http://www.developmentseed.org/
 '''
 
+# TODO: split UI / metadata parts into separate file
+# TODO: rewrite with better code style + more fp
+# TODO: Analyze performance
+# TODO: move to Flask / Django / anything else?
+# TODO: Give UTF-8 a long, hard look
+# TODO: Build UI for running this - don't settle with .command file
+# TODO: Write demos for ruby/sinatra, django, drupal, node, html/js
+# TODO: clarify, fix configuration
+
 # TODO: built complete mock modem for better testing
 # TODO: standardize meaning of message, sent, sender, received, etc., throughout
 # TODO: create favicon
