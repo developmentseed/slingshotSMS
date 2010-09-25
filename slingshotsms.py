@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+# vim: ai ts=4 sts=4 et sw=4
 
 import ConfigParser, time, urllib, sys, os, re, json
 from xml.dom import minidom
@@ -7,7 +7,7 @@ from rfc822 import parsedate as parsehttpdate
 
 import cherrypy, pygsm, sqlite3, serial, markdown2, vobject
 # from pygsm.autogsmmodem import GsmModemNotFound
-from sqlobject import SQLObject, IntCol, StringCol, BLOBCol
+from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 
 import keyauth
@@ -37,28 +37,6 @@ CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
 
 # TODO: create model for tagging
-
-class ContactData(SQLObject):
-    _connection = SQLiteConnection('slingshotsms.db')
-    # in reference to
-    # http://en.wikipedia.org/wiki/VCard
-    TEL = StringCol()
-    UID = StringCol()
-    PHOTO = BLOBCol()
-    N = StringCol()
-    FN = StringCol()
-    # contains all data as serialized vc, including the above columns
-    data = BLOBCol()
-
-class MessageData(SQLObject):
-    ''' message storage - contains everything sent, plus freeform tags '''
-    _connection = SQLiteConnection('slingshotsms.db')
-    # in sqlite, these columns will be default null
-    sent = IntCol(default=None)
-    received = IntCol(default=None)
-    sender = StringCol()
-    text = StringCol()
-    tags = StringCol()
 
 class OutMessageData(SQLObject):
     ''' messages going out - these are essentially a queue '''
@@ -290,59 +268,6 @@ class SMSServer:
                 'sent': datetime.datetime.fromtimestamp(message.sent).strftime('%Y-%m-%dT%H:%M:%S')} 
                 for message in messages])
     list.exposed = True
-
-    # TODO: support other formats + limit the list
-    def contact_list(self, limit = 200, format = 'json', q = False, timestamp = 0):
-        if q:
-            import base64
-            contacts = ContactData.select()
-            return "\n".join(["%s <%s>" % (contact.FN, contact.TEL) for contact in contacts])
-        else:
-            import base64
-            contacts = ContactData.select()
-            return json.dumps([{
-                'TEL':    contact.TEL,
-                'N':      contact.N,
-                'UID':    contact.UID,
-                'PHOTO':    base64.b64encode(contact.PHOTO),
-                'FN':     contact.FN,} for contact in contacts])
-    contact_list.exposed = True
-
-    def import_vcard(self, vcard_file = ''):
-        """ given a vcard_file FieldStorage object, import vCards """
-        try:
-            vs = vobject.readComponents(vcard_file.value)
-            for v in vs:
-                # TODO: filter out contacts that don't have a telephone number
-                ContactData(FN=v.fn.value,
-                    TEL=v.tel.value,
-                    PHOTO=v.photo.value,
-                    UID='blah', #TODO: implement UID checking / generation
-                    N="%s %s" % (v.n.value.given, v.n.value.family),
-                    data=str(v.serialize()))
-            return 'Contact saved'
-        except Exception, e:
-            print e
-            return "This contact could not be saved"
-    import_vcard.exposed = True
-
-    def export_vcard(self):
-        contacts = ContactData.select()
-        contact_string = "\n".join([contact.data for contact in contacts])
-        cherrypy.response.headers['Content-Disposition'] = "attachment; filename=vCards.vcf"
-        return contact_string
-    export_vcard.exposed = True
-
-
-
-# class Relog(cherrypy.process.plugins.SimplePlugin):
-# 
-#     def log(self, msg, a):
-#         print msg
-# 
-# cherrypy.engine.relog = Relog(cherrypy.engine)
-# cherrypy.engine.relog.subscribe()
-
 
 def start():
     """ run as command line """
