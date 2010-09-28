@@ -30,14 +30,10 @@ import hmac, random, hashlib, urllib2
 # TODO: Build UI for running this - don't settle with .command file
 # TODO: Write demos for ruby/sinatra, django, drupal, node, html/js
 # TODO: clarify, fix configuration
-
-# TODO: create favicon
 # TODO: have json-returning pages return correct Content-Type
 
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
-
-# TODO: create model for tagging
 
 class OutMessageData(SQLObject):
     ''' messages going out - these are essentially a queue '''
@@ -73,39 +69,38 @@ class SMSServer:
         self.message_watcher.start()
         self.messages_in_queue = []
 
+    def jsonp(self, json, jsoncallback):
+        """ serve a page with an optional jsonp callback """
+        if jsoncallback:
+            json = "%s(%s)" % (jsoncallback, json)
+            #self.set_header('Content-Type', 'text/javascript') TODO: rewrite for cherrypy or port
+        else:
+            json = "%s" % json
+            #self.set_header('Content-Type', 'application/json')
+        return json
+
     def keyauth_random(self):
         " Provide a random, time dependent string "
         hash = hashlib.md5().update(str(random.random()))
         return hash.hexdigest()
 
     def keyauth_sign(self, message):
-        nonce = self.keyauth_random()
-        timestamp = str(int(time.time()))
         hash = hmac.new(self.private_key, 
                 message + nonce + timestamp, hashlib.sha1)
         return {
-                'nonce': nonce, 
-                'timestamp': timestamp, 
+                'nonce': self.keyauth_random()
+                'timestamp': str(int(time.time())),
                 'public_key': self.public_key,
                 'message': message,
                 'hash': hash.hexdigest()}
         
     def keyauth_post(self, url, message):
         message_encoded = self.keyauth_sign(self.private_key, message)
-        request = urllib2.Request(url=url, data=urllib.urlencode(message_encoded))
-        f = urllib2.urlopen(request)
-        return f.read()
+        request = urllib2.urlopen(urllib2.Request(url=url, data=urllib.urlencode(message_encoded)))
+        return request.read()
         
     def parse_config(self):
         """no params: this assists in parsing the config file with defaults"""
-        defaults = {
-            'port': '/dev/tty.MTCBA-U-G1a20',
-            'baudrate': '115200',
-            'sms_poll': 2,
-            'database_file': 'slingshotsms.db',
-            'endpoint': 'http://localhost/sms'}
-
-        self.config = ConfigParser.SafeConfigParser(defaults)
 
         # For mac distributions, look up the .app directory structure
         # to find slingshotsms.txt alongside the double-clickable
@@ -113,6 +108,13 @@ class SMSServer:
             config_path = '../../../'+CONFIG
         else:
             config_path = CONFIG
+
+        self.config = ConfigParser.SafeConfigParser({
+            'port': '/dev/tty.MTCBA-U-G1a20',
+            'baudrate': '115200',
+            'sms_poll': 2,
+            'database_file': 'slingshotsms.db',
+            'endpoint': 'http://localhost/sms'})
 
         self.config.read([config_path, '../'+config_path])
         self.modem_config = dict(self.config.items(sys.platform, True))
