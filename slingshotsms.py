@@ -35,6 +35,13 @@ import hmac, random, hashlib, urllib2
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
 
+class MessageData(SQLObject):
+    _connection = SQLiteConnection('slingshotsms.db')
+    sent = IntCol(default=None)
+    received = IntCol(default=None)
+    sender = StringCol()
+    text = StringCol()
+
 class OutMessageData(SQLObject):
     ''' messages going out - these are essentially a queue '''
     _connection = SQLiteConnection('slingshotsms.db')
@@ -55,7 +62,9 @@ class SMSServer:
         if not os.path.exists('slingshotsms.db'):
             self.reset()
         try:
-            self.modem = pygsm.GsmModem(port=self.port, baudrate=self.baudrate)
+            if self.modem_config['mock'] != 'yes':
+                self.modem = pygsm.GsmModem(port=self.modem_config['port'], 
+                        baudrate=self.modem_config['baudrate'])
         except Exception, e:
             try:
                 self.modem = pygsm.AutoGsmModem()
@@ -64,10 +73,9 @@ class SMSServer:
                         slingshotsms.txt to point Slingshot at your working GSM modem.")
                 sys.exit()
         self.message_watcher = cherrypy.process.plugins.Monitor(cherrypy.engine, \
-            self.retrieve_sms, self.modem_config['poll_interval'])
+            self.retrieve_sms, int(self.modem_config['poll_interval']))
         self.message_watcher.subscribe()
         self.message_watcher.start()
-        self.messages_in_queue = []
 
     def jsonp(self, json, jsoncallback):
         """ serve a page with an optional jsonp callback """
@@ -81,22 +89,27 @@ class SMSServer:
 
     def keyauth_random(self):
         " Provide a random, time dependent string "
-        hash = hashlib.md5().update(str(random.random()))
+        hash = hashlib.md5()
+        hash.update(str(random.random()))
         return hash.hexdigest()
 
     def keyauth_sign(self, message):
-        hash = hmac.new(self.private_key, 
+        nonce = self.keyauth_random()[0]
+        timestamp = str(int(time.time()))
+        hash = hmac.new(self.endpoint['private_key'], 
                 message + nonce + timestamp, hashlib.sha1)
         return {
-                'nonce': self.keyauth_random()
-                'timestamp': str(int(time.time())),
-                'public_key': self.public_key,
+                'nonce': nonce,
+                'timestamp': timestamp,
+                'public_key': self.endpoint['public_key'],
                 'message': message,
                 'hash': hash.hexdigest()}
         
-    def keyauth_post(self, url, message):
-        message_encoded = self.keyauth_sign(self.private_key, message)
-        request = urllib2.urlopen(urllib2.Request(url=url, data=urllib.urlencode(message_encoded)))
+    def keyauth_post(self, message):
+        message_encoded = self.keyauth_sign(message)
+        request = urllib2.urlopen(urllib2.Request(
+            url=self.endpoint['url'], 
+            data=urllib.urlencode(message_encoded)))
         return request.read()
         
     def parse_config(self):
@@ -113,42 +126,49 @@ class SMSServer:
             'port': '/dev/tty.MTCBA-U-G1a20',
             'baudrate': '115200',
             'sms_poll': 2,
+            'mock_modem': False,
             'database_file': 'slingshotsms.db',
             'endpoint': 'http://localhost/sms'})
 
         self.config.read([config_path, '../'+config_path])
         self.modem_config = dict(self.config.items(sys.platform, True))
-        self.hmac_config = dict(self.config.items('hmac', True))
+        self.endpoint = dict(self.config.items('endpoint', True))
 
     def post_results(self):
         '''private method which POSTS messages stored in the database 
         to endpoints defined by self.endpoint'''
-        # TODO: mark messages as sent instead of destroying
+        logging.info('posting results')
         out_messages = OutMessageData.select();
         for out_message in out_messages:
+            logging.info('sending sms to %s' % out_message.number)
             self.modem.send_sms(out_message.number, out_message.text)
             out_message.destroySelf()
 
-        if self.endpoint:
+        if self.endpoint['url']:
             messages = MessageData.select();
-            self.keyauth_post(self.messages_json(messages))
+            try:
+                self.keyauth_post(self.messages_json(messages))
+            except urllib2.HTTPError, e:
+                cherrypy.log('Request to %s failed with status %s' % 
+                        (self.endpoint['url'], e.code), severity=logging.ERROR)
             for message in messages:
                 message.destroySelf()
 
-    def messages_json(messages):
+    def messages_json(self, messages):
         return json.dumps([
             {'received': m.received, 'sender': m.sender, 'text': m.text }
             for m in messages])
 
     def retrieve_sms(self):
         ''' worker method, runs in a separate thread watching for messages '''
-        msg = self.modem.next_message()
-        if msg is not None:
-            logging.info("Message retrieved")
-            MessageData(
-                    sent=int(time.mktime(time.localtime(int(msg.sent.strftime('%s'))))),
-                    sender=msg.sender,
-                    text=msg.text)
+        if self.modem_config['mock'] != 'yes':
+            msg = self.modem.next_message()
+            if msg is not None:
+                logging.info("Message retrieved")
+                MessageData(
+                        sent=int(time.mktime(time.localtime(int(msg.sent.strftime('%s'))))),
+                        sender=msg.sender,
+                        text=msg.text)
         self.post_results()
 
     def reset(self):
@@ -163,10 +183,15 @@ class SMSServer:
 
     def status(self):
         """ exposed method: returns JSON object of status information """
-        return json.dumps({
-            'port': self.modem.device_kwargs['port'],
-            'baudrate': self.modem.device_kwargs['baudrate'],
-            'endpoint': self.endpoint})
+        if self.modem_config['mock'] != 'yes':
+            return json.dumps({
+                'port': self.modem.device_kwargs['port'],
+                'baudrate': self.modem.device_kwargs['baudrate'],
+                'endpoint': self.endpoint['url']})
+        else:
+            return json.dumps({
+                'port': 'Mocking modem',
+                'endpoint': self.endpoint['url']})
     status.exposed = True
 
     def send(self, data):

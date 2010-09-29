@@ -7,19 +7,19 @@
 
 [darwin]
 mock=yes
-sms_poll=4
+poll_interval=4
 port=
 # baudrate=115200
 
 [win32]
 mock=no
-sms_poll=4
+poll_interval=4
 port=
 # baudrate=115200
 
 [modem]
 mock=no
-sms_poll=4
+poll_interval=4
 port=
 # baudrate=115200
 
@@ -32,7 +32,7 @@ port=
 # section from admin/settings/slingshot
 # and paste over the example section
 # below
-[hmac]
-endpoint=
+[endpoint]
+url=http://test.com/test
 public_key=
 private_key=
