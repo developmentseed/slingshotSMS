@@ -140,7 +140,7 @@ class SMSServer:
         logging.info('posting results')
         out_messages = OutMessageData.select()
         for out_message in out_messages:
-            logging.info('sending sms to %s' % out_message.number)
+            cherrypy.log('sending sms to %s' % out_message.number)
             self.modem.send_sms(out_message.number, out_message.text)
             out_message.destroySelf()
 
@@ -164,7 +164,7 @@ class SMSServer:
         if self.modem_config['mock'] != 'yes':
             msg = self.modem.next_message()
             if msg is not None:
-                logging.info("Message retrieved")
+                cherrypy.log("Message retrieved")
                 MessageData(
                         sent=int(time.mktime(time.localtime(int(msg.sent.strftime('%s'))))),
                         sender=msg.sender,
@@ -201,7 +201,7 @@ class SMSServer:
           '''
         messagedata = json.loads(data)
         for m in messagedata:
-            logging.info("Sending %s a message consisting of %s" % (m.number, m.text))
+            cherrypy.log("Sending %s a message consisting of %s" % (m.number, m.text))
             OutMessageData(number=m.number, text=m.text)
         return json.dumps({'status': 'ok', 'msg': '%d messages sent' % len(messagedata)})
     send.exposed = True
