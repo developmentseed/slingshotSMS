@@ -3,14 +3,15 @@
 This is SlingshotSMS, a minimal SMS server which connects GSM modems to 
 websites and applications via a simple HTTP interface.
 
-# Goliath
+# Experimental
 
-This is the Goliath branch of SlingshotSMS - it's not for public 
-consumption yet, but it's very interesting if you're willing to tweak. 
-Instead of just being a REST endpoint, this turns SlinghostSMS into a 
-lightweight, scriptable interface for input and output of text messages. 
-It has vCard import and export, Javascript hooks, a Javascript API, 
-and much more.
+Hi! This is the experimental branch of SlingshotSMS. Here's what's different and better:
+
+* Minimal slingshotsms.py core: it's lost a hundred lines of code since Goliath and does things in a much more concise fashion
+* Multiple messages with JSON: now fewer POSTs required when you have a lot of messages going from place to place
+* Way better testing functionality: interactive mode lets you test web applications quickly
+* More straightforward configuration
+* Uses CherryPy's logging facilities, so logs are easily redirected and repurposed
 
 # Requirements
 
