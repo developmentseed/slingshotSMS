@@ -138,7 +138,7 @@ class SMSServer:
         '''private method which POSTS messages stored in the database 
         to endpoints defined by self.endpoint'''
         logging.info('posting results')
-        out_messages = OutMessageData.select();
+        out_messages = OutMessageData.select()
         for out_message in out_messages:
             logging.info('sending sms to %s' % out_message.number)
             self.modem.send_sms(out_message.number, out_message.text)
