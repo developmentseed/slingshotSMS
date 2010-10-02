@@ -1,17 +1,24 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-import ConfigParser, time, urllib, sys, os, json, logging
+import ConfigParser, time, urllib, sys, os, logging
 from rfc822 import parsedate as parsehttpdate
 
-import cherrypy, pygsm, sqlite3, serial
+import tornado.web
+import tornado.ioloop
+import tornado.httpserver
+import tornado.httpclient
+from tornado.escape import json_encode
+from tornado.options import define, options
+
+import pygsm, sqlite3, serial
 from pygsm.autogsmmodem import GsmModemNotFound
+
 from sqlobject import SQLObject, IntCol, StringCol
 from sqlobject.sqlite.sqliteconnection import SQLiteConnection
 
 # for RSS generation, possibly remove soon
 import PyRSS2Gen, datetime
-from socket import gethostname, gethostbyname
 
 # for keyauth
 import hmac, random, hashlib, urllib2
@@ -147,12 +154,16 @@ class SMSServer:
         if self.endpoint['url']:
             messages = MessageData.select();
             try:
-                self.keyauth_post(self.messages_json(messages))
+                if messages.count() > 0:
+                    print self.keyauth_post(self.messages_json(messages))
+                    for message in messages:
+                        message.destroySelf()
             except urllib2.HTTPError, e:
                 cherrypy.log('Request to %s failed with status %s' % 
                         (self.endpoint['url'], e.code), severity=logging.ERROR)
-            for message in messages:
-                message.destroySelf()
+            except urllib2.URLError, e:
+                cherrypy.log('Request to %s failed because of a URL error' % 
+                        (self.endpoint['url']), severity=logging.ERROR)
 
     def messages_json(self, messages):
         return json.dumps([
@@ -194,19 +205,20 @@ class SMSServer:
                 'endpoint': self.endpoint['url']})
     status.exposed = True
 
-    def send(self, data):
+class SendHandler(tornado.web.RequestHandler)
+    def get(self, data):
         '''
           Return status code "ok"
           Public API method which sends an SMS message when given messages as JSON
           '''
-        messagedata = json.loads(data)
+        messagedata = json_decode(data)
         for m in messagedata:
-            cherrypy.log("Sending %s a message consisting of %s" % (m.number, m.text))
-            OutMessageData(number=m.number, text=m.text)
-        return json.dumps({'status': 'ok', 'msg': '%d messages sent' % len(messagedata)})
-    send.exposed = True
+            OutMessageData(number=m['number'], text=m['text'])
+            m.destroySelf()
+        return json_encode({'status': 'ok', 'msg': '%d messages sent' % len(messagedata)})
 
-    def list(self, limit=100, format='rss'):
+class ListHandler(tornado.web.RequestHandler)
+    def get(self, limit=100, format='rss'):
         """ exposed method that generates a list of messages in RSS 2.0 """
         date = parsehttpdate(cherrypy.request.headers.elements('If-Modified-Since'))
         limit = int(limit)
@@ -216,8 +228,9 @@ class SMSServer:
             messages = MessageData.select().limit(limit)
         if format == 'rss':
             rss = PyRSS2Gen.RSS2(
-                    title = "SlingshotSMS on %s" % gethostname(),
-                    link = gethostbyname(gethostname()),
+                    # TODO: allow name customization
+                    title = "SlingshotSMS",
+                    link = 'http://localhost:8080/',
                     description = "Incoming SMS messages",
                     lastBuildDate = datetime.datetime.now(),
                     items = [PyRSS2Gen.RSSItem(
@@ -227,7 +240,7 @@ class SMSServer:
                         for message in messages])
             return rss.to_xml()
         if format == 'json':
-            return json.dumps([{
+            return json_encode([{
                 'text': message.text,
                 'sender': message.sender,
                 'sent': datetime.datetime.fromtimestamp(message.sent).strftime('%Y-%m-%dT%H:%M:%S')} 
@@ -247,19 +260,29 @@ def config_path():
     else:
         return SERVER_CONFIG
 
-def start():
-    """ run as command line """
-    # hasattr(sys, 'frozen') confirms that this is running as a py2app-compiled Application
-    cherrypy.config.update(config_path())
-    # see http://www.py2exe.org/index.cgi/WhereAmI
-	# use of __file__ is dangerous when packaging with py2exe and console
+class Application(tornado.web.Application):
+    """ routers and settings for TileLite """
+    def __init__(self):
+        handlers = [
+            (r"/", MainHandler),
+            (r"/send", SendHandler),
+            (r"/list", ListHandler),
+        ]
+        settings = dict(
+            template_path=os.path.join(os.path.dirname(__file__), 'templates'),
+            static_path=os.path.join(os.path.dirname(__file__), 'static'),
+        )
+        tornado.web.Application.__init__(self, handlers, **settings)
+
+def main():
     if hasattr(sys, "frozen"):
         current_dir=os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
     else:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-    conf = {'/web': {'tools.staticdir.on': True,
-        'tools.staticdir.dir': os.path.join(current_dir, 'web')}}
-    return cherrypy.quickstart(SMSServer(), '/', config=conf)
+    tornado.options.parse_command_line()
+    http_server = tornado.httpserver.HTTPServer(Application())
+    http_server.listen(options.port)
+    tornado.ioloop.IOLoop.instance().start()
 
-if __name__ == "__main__":
-    start()
+if __name__ == '__main__':
+    main()
