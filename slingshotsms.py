@@ -147,12 +147,16 @@ class SMSServer:
         if self.endpoint['url']:
             messages = MessageData.select();
             try:
-                self.keyauth_post(self.messages_json(messages))
+                if messages.count() > 0:
+                    print self.keyauth_post(self.messages_json(messages))
+                    for message in messages:
+                        message.destroySelf()
             except urllib2.HTTPError, e:
                 cherrypy.log('Request to %s failed with status %s' % 
                         (self.endpoint['url'], e.code), severity=logging.ERROR)
-            for message in messages:
-                message.destroySelf()
+            except urllib2.URLError, e:
+                cherrypy.log('Request to %s failed because of a URL error' % 
+                        (self.endpoint['url']), severity=logging.ERROR)
 
     def messages_json(self, messages):
         return json.dumps([
@@ -201,8 +205,9 @@ class SMSServer:
           '''
         messagedata = json.loads(data)
         for m in messagedata:
-            cherrypy.log("Sending %s a message consisting of %s" % (m.number, m.text))
-            OutMessageData(number=m.number, text=m.text)
+            cherrypy.log("Sending %s a message consisting of %s" % (m['number'], m['text']))
+            OutMessageData(number=m['number'], text=m['text'])
+            m.destroySelf()
         return json.dumps({'status': 'ok', 'msg': '%d messages sent' % len(messagedata)})
     send.exposed = True
 
