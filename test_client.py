@@ -29,7 +29,7 @@ def sent_watcher():
     while True:
         messages = OutMessageData.select()
         for message in messages:
-            print "sent: \n%s\n to %s" % (message.text, message.number)
+            print "sent: \n%s\n to %s\n>" % (message.text, message.number)
             message.destroySelf()
         time.sleep(5)
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     o.add_option('--i', '--interactive', action='store_true', dest='interactive')
     (opts, args) = o.parse_args()
     if opts.interactive:
-        print "Interactive mode"
+        print "Interactive mode: type exit to quit"
         sender = raw_input('[what number should messages originate from?]: ')
 
         watcher = multiprocessing.Process(target=sent_watcher)
