@@ -35,6 +35,16 @@ import hmac, random, hashlib, urllib2
 CONFIG = "slingshotsms.txt"
 SERVER_CONFIG = "server.txt"
 
+class MockModem:
+    device_kwargs = {
+            'port': 'mocking modem',
+            'baudrate': 'mocking modem',
+            }
+    def next_message(self):
+        return None
+    def send_sms(self, number, text):
+        cherrypy.log("Sending a message to %d" % number)
+
 class MessageData(SQLObject):
     _connection = SQLiteConnection('slingshotsms.db')
     sent = IntCol(default=None)
@@ -62,7 +72,9 @@ class SMSServer:
         if not os.path.exists('slingshotsms.db'):
             self.reset()
         try:
-            if self.modem_config['mock'] != 'yes':
+            if self.modem_config['mock'] == 'yes':
+                self.modem = MockModem()
+            else:
                 self.modem = pygsm.GsmModem(port=self.modem_config['port'], 
                         baudrate=self.modem_config['baudrate'])
         except Exception, e:
@@ -165,14 +177,13 @@ class SMSServer:
 
     def retrieve_sms(self):
         ''' worker method, runs in a separate thread watching for messages '''
-        if self.modem_config['mock'] != 'yes':
-            msg = self.modem.next_message()
-            if msg is not None:
-                cherrypy.log("Message retrieved")
-                MessageData(
-                        sent=int(time.mktime(time.localtime(int(msg.sent.strftime('%s'))))),
-                        sender=msg.sender,
-                        text=msg.text)
+        msg = self.modem.next_message()
+        if msg is not None:
+            cherrypy.log("Message retrieved")
+            MessageData(
+                    sent=int(time.mktime(time.localtime(int(msg.sent.strftime('%s'))))),
+                    sender=msg.sender,
+                    text=msg.text)
         self.post_results()
 
     def reset(self):
@@ -187,15 +198,10 @@ class SMSServer:
 
     def status(self):
         """ exposed method: returns JSON object of status information """
-        if self.modem_config['mock'] != 'yes':
-            return json.dumps({
-                'port': self.modem.device_kwargs['port'],
-                'baudrate': self.modem.device_kwargs['baudrate'],
-                'endpoint': self.endpoint['url']})
-        else:
-            return json.dumps({
-                'port': 'Mocking modem',
-                'endpoint': self.endpoint['url']})
+        return json.dumps({
+            'port': self.modem.device_kwargs['port'],
+            'baudrate': self.modem.device_kwargs['baudrate'],
+            'endpoint': self.endpoint['url']})
     status.exposed = True
 
     def send(self, data):
@@ -207,7 +213,6 @@ class SMSServer:
         for m in messagedata:
             cherrypy.log("Sending %s a message consisting of %s" % (m['number'], m['text']))
             OutMessageData(number=m['number'], text=m['text'])
-            m.destroySelf()
         return json.dumps({'status': 'ok', 'msg': '%d messages sent' % len(messagedata)})
     send.exposed = True
 
